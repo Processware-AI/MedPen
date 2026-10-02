@@ -32,6 +32,13 @@ APT_TOOLS=(
   "can-utils:candump"    # CAN 버스 송수신 (candump/cansend)
   "trivy:trivy"          # SBOM 생성 + 취약점 스캔 (FDA SBOM 요구)
   "syft:syft"            # SBOM 생성 (SPDX/CycloneDX)
+  "blue-hydra:blue_hydra"    # BLE 장치 지속 탐지·추적
+  "bluesnarfer:bluesnarfer"  # Bluetooth 정보 추출(레거시)
+  "redfang:fang"             # 숨겨진 Bluetooth 장치 탐색
+  "netexec:netexec"          # SMB/LDAP/WinRM 인증·열거 (CrackMapExec 후속)
+  "rizin:rizin"              # 역공학 프레임워크 (cutter 백엔드)
+  "edb-debugger:edb"         # 리눅스 GUI 디버거
+  "hostapd-wpe:hostapd-wpe"  # 악성 AP·WPA-Enterprise 자격증명 탈취
 )
 
 # pipx로 설치 (apt에 없음). 일반 사용자 권한으로 설치됨.

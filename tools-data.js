@@ -90,7 +90,15 @@ window.MEDPEN_TOOLS = [
   {id:"syft",cat:"sbom",ph:["report"],inst:true,chk:"syft",desc:"SBOM 생성기. 파일시스템·이미지에서 SPDX/CycloneDX SBOM 산출.",cmd:"syft dir:./firmware -o cyclonedx-json",samd:"FDA 요구 기계판독 SBOM 생성 — 구성요소·버전 목록화.",tags:["phi"]},
   {id:"trivy",cat:"sbom",ph:["report"],inst:true,chk:"trivy",desc:"SBOM 생성 + 알려진 취약점(CVE) 스캔. 파일시스템·이미지·SBOM 대상.",cmd:"trivy fs --format cyclonedx -o sbom.json ./app",samd:"SBOM 구성요소의 알려진 취약점 대조(사후시장 관리 근거).",tags:["phi"]},
   {id:"cyclonedx",cat:"sbom",ph:["report"],inst:true,chk:"cyclonedx-py",desc:"CycloneDX SBOM 생성(Python 의존성).",cmd:"cyclonedx-py requirements -i requirements.txt",samd:"Python 기반 SaMD의 표준 포맷 SBOM 산출.",tags:["phi"]},
-  {id:"pip-audit",cat:"sbom",ph:["report"],inst:true,chk:"pip-audit",desc:"Python 의존성의 알려진 취약점 감사.",cmd:"pip-audit -r requirements.txt",samd:"SaMD 백엔드 의존성의 취약 패키지 식별.",tags:["phi"]}
+  {id:"pip-audit",cat:"sbom",ph:["report"],inst:true,chk:"pip-audit",desc:"Python 의존성의 알려진 취약점 감사.",cmd:"pip-audit -r requirements.txt",samd:"SaMD 백엔드 의존성의 취약 패키지 식별.",tags:["phi"]},
+  // ===== 메타패키지 선별 추가 (BLE·네트워크·RE·Wi-Fi 엔터프라이즈) =====
+  {id:"blue-hydra",cat:"wireless",ph:["wireless","recon"],inst:true,chk:"blue_hydra",desc:"BLE 장치 지속 탐지·추적.",cmd:"blue_hydra",samd:"BLE 웨어러블/이식형의 지속적 식별·추적 노출 점검.",tags:["ble"]},
+  {id:"bluesnarfer",cat:"wireless",ph:["wireless","exploit"],inst:true,chk:"bluesnarfer",desc:"Bluetooth 정보 추출(레거시 공격).",cmd:"bluesnarfer -r 1-100 -b <MAC>",samd:"레거시 BT 기기의 비인증 데이터 추출 내성 검증.",tags:["ble"]},
+  {id:"redfang",cat:"wireless",ph:["wireless","recon"],inst:true,chk:"fang",desc:"숨겨진(non-discoverable) Bluetooth 장치 탐색.",cmd:"fang -r <MAC-range>",samd:"비공개 모드 BT 의료기기의 발견 가능성 점검.",tags:["ble"]},
+  {id:"netexec",cat:"traffic",ph:["traffic","cred","recon"],inst:true,chk:"netexec",desc:"SMB/LDAP/WinRM 네트워크 인증·열거 (CrackMapExec 후속, nxc).",cmd:"netexec smb <target> -u user -p pass",samd:"Windows 기반 PACS/워크스테이션의 인증·공유·AD 노출 평가.",tags:["ip"]},
+  {id:"rizin",cat:"firmware",ph:["firmware","exploit"],inst:true,chk:"rizin",desc:"역공학 프레임워크(radare2 포크, cutter 백엔드).",cmd:"rizin -A firmware.elf",samd:"펌웨어 바이너리 분석(cutter GUI의 CLI 대안).",tags:["usb","prop"]},
+  {id:"edb-debugger",cat:"firmware",ph:["firmware","exploit"],inst:true,chk:"edb",desc:"리눅스 GUI 디버거(Evan's Debugger).",cmd:"edb --run ./binary",samd:"임베디드/리눅스 SiMD 바이너리의 동적 디버깅.",tags:["usb"]},
+  {id:"hostapd-wpe",cat:"wireless",ph:["wireless","cred"],inst:true,chk:"hostapd-wpe",desc:"악성 AP(evil-twin)·WPA-Enterprise 자격증명 탈취.",cmd:"hostapd-wpe hostapd-wpe.conf",samd:"Wi-Fi(엔터프라이즈 포함) 연결 의료기기의 자격증명 탈취 내성 검증(격리망).",tags:["ip"]}
 ];
 
 /* 각 툴의 상세: ov=개요, tc=[{t:제목,s:절차}] 테스트 케이스, cs=[사례], rf=[[라벨,URL]] 참고 */
@@ -172,5 +180,12 @@ window.MEDPEN_DETAIL = {
   syft:{ov:"파일시스템·컨테이너 이미지에서 SPDX/CycloneDX SBOM을 생성한다. FDA 시판 전 제출의 기계판독 SBOM 요구에 대응.",tc:[{t:"SBOM 생성",s:"syft dir:./firmware -o cyclonedx-json=sbom.json 으로 구성요소·버전 목록화"},{t:"포맷 변환",s:"-o spdx-json 등으로 제출 포맷에 맞춰 출력"}],cs:["SaMD/SiMD 소프트웨어 구성요소 인벤토리를 기계판독 SBOM으로 산출","trivy/grype와 연계해 SBOM 취약점 대조"],rf:[["Syft","https://github.com/anchore/syft"]]},
   trivy:{ov:"SBOM 생성과 알려진 취약점(CVE) 스캔을 함께 수행한다. 파일시스템·이미지·SBOM·IaC 대상.",tc:[{t:"파일시스템 취약점 스캔",s:"trivy fs ./app 로 의존성·OS 패키지의 알려진 취약점 탐지"},{t:"SBOM 생성",s:"trivy fs --format cyclonedx -o sbom.json ./app"},{t:"SBOM 대조",s:"trivy sbom sbom.json 으로 기존 SBOM의 취약점 점검"}],cs:["SBOM 구성요소의 알려진 취약점 대조(사후시장 취약점 관리 근거)","컨테이너 기반 SaMD 클라우드 이미지 취약점 평가"],rf:[["Trivy","https://trivy.dev/"]]},
   cyclonedx:{ov:"CycloneDX 표준 포맷 SBOM을 Python 의존성에서 생성한다.",tc:[{t:"요구사항 기반 SBOM",s:"cyclonedx-py requirements -i requirements.txt -o sbom.json"},{t:"환경 기반 SBOM",s:"cyclonedx-py environment 로 설치 환경의 구성요소 목록화"}],cs:["Python 기반 SaMD 백엔드의 표준 포맷 SBOM 산출"],rf:[["CycloneDX Python","https://github.com/CycloneDX/cyclonedx-python"]]},
-  "pip-audit":{ov:"Python 의존성의 알려진 취약점을 PyPA Advisory DB로 감사한다.",tc:[{t:"요구사항 감사",s:"pip-audit -r requirements.txt 로 취약 패키지·수정 버전 식별"},{t:"SBOM 출력",s:"--format cyclonedx-json 으로 결과를 SBOM과 함께 제출"}],cs:["SaMD 백엔드 의존성의 취약 패키지 식별·패치 계획 수립"],rf:[["pip-audit","https://github.com/pypa/pip-audit"]]}
+  "pip-audit":{ov:"Python 의존성의 알려진 취약점을 PyPA Advisory DB로 감사한다.",tc:[{t:"요구사항 감사",s:"pip-audit -r requirements.txt 로 취약 패키지·수정 버전 식별"},{t:"SBOM 출력",s:"--format cyclonedx-json 으로 결과를 SBOM과 함께 제출"}],cs:["SaMD 백엔드 의존성의 취약 패키지 식별·패치 계획 수립"],rf:[["pip-audit","https://github.com/pypa/pip-audit"]]},
+  "blue-hydra":{ov:"BLE 장치를 지속적으로 탐지·추적하는 도구.",tc:[{t:"지속 탐지",s:"blue_hydra 실행 후 주변 BLE 장치의 출현·RSSI·MAC 추적"}],cs:["BLE 웨어러블/이식형의 지속 추적(프라이버시) 노출 점검"],rf:[["blue_hydra","https://github.com/pwnieexpress/blue_hydra"]]},
+  bluesnarfer:{ov:"레거시 Bluetooth 기기에서 전화번호부 등 정보를 추출하는 공격 도구.",tc:[{t:"정보 추출 시도",s:"bluesnarfer -r 1-100 -b <MAC> 로 비인증 데이터 접근 가능성 확인"}],cs:["레거시 BT 의료 액세서리의 비인증 데이터 추출 내성 검증"],rf:[["bluesnarfer","https://www.kali.org/tools/bluesnarfer/"]]},
+  redfang:{ov:"non-discoverable(숨김) 모드의 Bluetooth 장치를 브루트포스로 탐색.",tc:[{t:"숨은 장치 탐색",s:"fang -r <MAC-range> 로 비공개 모드 장치의 주소 탐색"}],cs:["비공개 모드로 설정된 BT 의료기기의 발견 가능성 점검"],rf:[["redfang","https://www.kali.org/tools/redfang/"]]},
+  netexec:{ov:"SMB/LDAP/WinRM/MSSQL 등에 대한 네트워크 인증·열거 자동화(CrackMapExec의 후속, nxc).",tc:[{t:"SMB 열거",s:"netexec smb <target> 로 호스트·공유·세션 열거"},{t:"자격증명 검증",s:"netexec smb <target> -u user -p pass 로 인증·권한 확인"}],cs:["Windows 기반 PACS/워크스테이션의 인증·공유·Active Directory 노출 평가"],rf:[["NetExec","https://www.netexec.wiki/"]]},
+  rizin:{ov:"radare2 포크 역공학 프레임워크(cutter GUI의 백엔드).",tc:[{t:"바이너리 분석",s:"rizin -A firmware.elf 에서 함수·문자열·분기 분석"}],cs:["펌웨어 바이너리 분석(cutter의 CLI 대안)"],rf:[["Rizin","https://rizin.re/"]]},
+  "edb-debugger":{ov:"리눅스용 GUI 디버거(Evan's Debugger).",tc:[{t:"동적 디버깅",s:"edb --run ./binary 로 중단점·레지스터·메모리 관찰"}],cs:["임베디드/리눅스 SiMD 바이너리의 런타임 동작 분석"],rf:[["edb-debugger","https://github.com/eteran/edb-debugger"]]},
+  "hostapd-wpe":{ov:"악성 AP(evil-twin)·WPA-Enterprise 자격증명 탈취 도구.",tc:[{t:"엔터프라이즈 자격증명 탈취",s:"hostapd-wpe hostapd-wpe.conf 로 악성 AP 구동, EAP 자격증명 수집(격리망)"}],cs:["Wi-Fi(엔터프라이즈) 연결 의료기기의 자격증명 탈취 내성 검증"],rf:[["hostapd-wpe","https://github.com/OpenSecurityResearch/hostapd-wpe"]]}
 };
