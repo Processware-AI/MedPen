@@ -106,7 +106,7 @@ pre.cmd,code.cmd{background:var(--code-bg);color:var(--code-fg);font-family:var(
 <script>
 const TOOLS=window.MEDPEN_TOOLS||[];
 const DETAIL=window.MEDPEN_DETAIL||{};
-const CAT={recon:"정찰",scan:"스캐닝",traffic:"프로토콜",web:"웹·API",wireless:"무선·BLE",hardware:"하드웨어·RF",firmware:"펌웨어",exploit:"익스플로잇",cred:"인증·암호"};
+const CAT={recon:"정찰",scan:"스캐닝",traffic:"프로토콜",web:"웹·API",wireless:"무선·BLE",hardware:"하드웨어·RF",firmware:"펌웨어",exploit:"익스플로잇",cred:"인증·암호",sbom:"SBOM·공급망"};
 const PH={recon:"정찰·OSINT",scan:"탐지·스캐닝",traffic:"프로토콜·트래픽 분석",web:"웹·API 테스트",wireless:"무선·BLE",firmware:"펌웨어·임베디드",exploit:"취약점 검증·익스플로잇",cred:"인증·암호",report:"리포팅"};
 const wrap=document.getElementById('wrap');
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}

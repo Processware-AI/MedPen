@@ -85,7 +85,12 @@ window.MEDPEN_TOOLS = [
   {id:"btscanner",cat:"wireless",ph:["wireless","recon"],inst:true,chk:"btscanner",desc:"Bluetooth 장치 탐색·정보 수집.",cmd:"btscanner",samd:"테스트 공간의 BLE 의료기기 식별·정보 노출 점검.",tags:["ble"]},
   // ===== metapackage: reverse-engineering (mobile) =====
   {id:"dex2jar",cat:"firmware",ph:["firmware"],inst:true,chk:"d2j-dex2jar",desc:"Android dex를 jar로 변환(정적 분석용).",cmd:"d2j-dex2jar app.apk",samd:"모바일 SaMD를 jd-gui 등으로 Java 수준 검토하기 위한 전처리.",tags:["mobile"]},
-  {id:"jd-gui",cat:"firmware",ph:["firmware"],inst:true,chk:"jd-gui",desc:"Java 바이트코드 디컴파일 GUI.",cmd:"jd-gui app-dex2jar.jar",samd:"모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토.",tags:["mobile"]}
+  {id:"jd-gui",cat:"firmware",ph:["firmware"],inst:true,chk:"jd-gui",desc:"Java 바이트코드 디컴파일 GUI.",cmd:"jd-gui app-dex2jar.jar",samd:"모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토.",tags:["mobile"]},
+  // ===== SBOM / 공급망 (FDA 제출 요소) =====
+  {id:"syft",cat:"sbom",ph:["report"],inst:false,chk:"syft",desc:"SBOM 생성기. 파일시스템·이미지에서 SPDX/CycloneDX SBOM 산출.",cmd:"syft dir:./firmware -o cyclonedx-json",samd:"FDA 요구 기계판독 SBOM 생성 — 구성요소·버전 목록화.",tags:["phi"]},
+  {id:"trivy",cat:"sbom",ph:["report"],inst:false,chk:"trivy",desc:"SBOM 생성 + 알려진 취약점(CVE) 스캔. 파일시스템·이미지·SBOM 대상.",cmd:"trivy fs --format cyclonedx -o sbom.json ./app",samd:"SBOM 구성요소의 알려진 취약점 대조(사후시장 관리 근거).",tags:["phi"]},
+  {id:"cyclonedx",cat:"sbom",ph:["report"],inst:false,chk:"cyclonedx-py",desc:"CycloneDX SBOM 생성(Python 의존성).",cmd:"cyclonedx-py requirements -i requirements.txt",samd:"Python 기반 SaMD의 표준 포맷 SBOM 산출.",tags:["phi"]},
+  {id:"pip-audit",cat:"sbom",ph:["report"],inst:false,chk:"pip-audit",desc:"Python 의존성의 알려진 취약점 감사.",cmd:"pip-audit -r requirements.txt",samd:"SaMD 백엔드 의존성의 취약 패키지 식별.",tags:["phi"]}
 ];
 
 /* 각 툴의 상세: ov=개요, tc=[{t:제목,s:절차}] 테스트 케이스, cs=[사례], rf=[[라벨,URL]] 참고 */
@@ -163,5 +168,9 @@ window.MEDPEN_DETAIL = {
   crackle:{ov:"BLE 레거시 페어링(LE Legacy) 암호를 크랙한다.",tc:[{t:"페어링 복호화",s:"crackle -i ble.pcap 로 약한 LE Legacy 페어링 캡처의 복호화 가능성 입증"}],cs:["BLE 웨어러블/이식형의 약한 페어링으로 인한 트래픽 복호화 입증"],rf:[["crackle","https://github.com/mikeryan/crackle"]]},
   btscanner:{ov:"Bluetooth 장치 탐색·정보 수집 도구.",tc:[{t:"BT 장치 탐색",s:"btscanner 로 주변 BLE 의료기기 식별·정보 수집"}],cs:["테스트 공간의 BLE 의료기기 식별·정보 노출 점검"],rf:[["btscanner","https://www.kali.org/tools/btscanner/"]]},
   dex2jar:{ov:"Android dex를 jar로 변환한다(정적 분석 전처리).",tc:[{t:"dex→jar 변환",s:"d2j-dex2jar app.apk 로 jar 생성 후 jd-gui 등으로 Java 검토"}],cs:["모바일 SaMD를 Java 수준으로 검토하기 위한 전처리"],rf:[["dex2jar","https://github.com/pxb1988/dex2jar"]]},
-  "jd-gui":{ov:"Java 바이트코드 디컴파일 GUI.",tc:[{t:"Java 디컴파일 검토",s:"jd-gui app-dex2jar.jar 로 로직·하드코딩 비밀을 가독성 있게 검토"}],cs:["모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토"],rf:[["JD-GUI","https://github.com/java-decompiler/jd-gui"]]}
+  "jd-gui":{ov:"Java 바이트코드 디컴파일 GUI.",tc:[{t:"Java 디컴파일 검토",s:"jd-gui app-dex2jar.jar 로 로직·하드코딩 비밀을 가독성 있게 검토"}],cs:["모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토"],rf:[["JD-GUI","https://github.com/java-decompiler/jd-gui"]]},
+  syft:{ov:"파일시스템·컨테이너 이미지에서 SPDX/CycloneDX SBOM을 생성한다. FDA 시판 전 제출의 기계판독 SBOM 요구에 대응.",tc:[{t:"SBOM 생성",s:"syft dir:./firmware -o cyclonedx-json=sbom.json 으로 구성요소·버전 목록화"},{t:"포맷 변환",s:"-o spdx-json 등으로 제출 포맷에 맞춰 출력"}],cs:["SaMD/SiMD 소프트웨어 구성요소 인벤토리를 기계판독 SBOM으로 산출","trivy/grype와 연계해 SBOM 취약점 대조"],rf:[["Syft","https://github.com/anchore/syft"]]},
+  trivy:{ov:"SBOM 생성과 알려진 취약점(CVE) 스캔을 함께 수행한다. 파일시스템·이미지·SBOM·IaC 대상.",tc:[{t:"파일시스템 취약점 스캔",s:"trivy fs ./app 로 의존성·OS 패키지의 알려진 취약점 탐지"},{t:"SBOM 생성",s:"trivy fs --format cyclonedx -o sbom.json ./app"},{t:"SBOM 대조",s:"trivy sbom sbom.json 으로 기존 SBOM의 취약점 점검"}],cs:["SBOM 구성요소의 알려진 취약점 대조(사후시장 취약점 관리 근거)","컨테이너 기반 SaMD 클라우드 이미지 취약점 평가"],rf:[["Trivy","https://trivy.dev/"]]},
+  cyclonedx:{ov:"CycloneDX 표준 포맷 SBOM을 Python 의존성에서 생성한다.",tc:[{t:"요구사항 기반 SBOM",s:"cyclonedx-py requirements -i requirements.txt -o sbom.json"},{t:"환경 기반 SBOM",s:"cyclonedx-py environment 로 설치 환경의 구성요소 목록화"}],cs:["Python 기반 SaMD 백엔드의 표준 포맷 SBOM 산출"],rf:[["CycloneDX Python","https://github.com/CycloneDX/cyclonedx-python"]]},
+  "pip-audit":{ov:"Python 의존성의 알려진 취약점을 PyPA Advisory DB로 감사한다.",tc:[{t:"요구사항 감사",s:"pip-audit -r requirements.txt 로 취약 패키지·수정 버전 식별"},{t:"SBOM 출력",s:"--format cyclonedx-json 으로 결과를 SBOM과 함께 제출"}],cs:["SaMD 백엔드 의존성의 취약 패키지 식별·패치 계획 수립"],rf:[["pip-audit","https://github.com/pypa/pip-audit"]]}
 };

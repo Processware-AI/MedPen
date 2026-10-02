@@ -30,6 +30,8 @@ APT_TOOLS=(
   "jadx:jadx"            # Dalvik → Java 디컴파일
   "ghidra:ghidra"        # NSA 역공학 스위트
   "can-utils:candump"    # CAN 버스 송수신 (candump/cansend)
+  "trivy:trivy"          # SBOM 생성 + 취약점 스캔 (FDA SBOM 요구)
+  "syft:syft"            # SBOM 생성 (SPDX/CycloneDX)
 )
 
 # pipx로 설치 (apt에 없음). 일반 사용자 권한으로 설치됨.
@@ -37,6 +39,8 @@ PIPX_TOOLS=(
   "frida-tools:frida"        # 동적 계측 / 핀닝 우회 (모바일 SaMD)
   "volatility3:vol"          # 메모리 포렌식
   "objection:objection"      # Frida 기반 런타임 모바일 탐색
+  "cyclonedx-bom:cyclonedx-py" # CycloneDX SBOM 생성 (Python)
+  "pip-audit:pip-audit"      # Python 의존성 취약점 감사
 )
 
 # 의료기기 평가 역량 보강용 메타패키지
