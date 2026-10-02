@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>평가 보고서 편집</title>
+<title>평가 계획서 편집</title>
 <style>
 /* Clinical-technical identity to match MedPen; document editor on paper. */
 :root{
@@ -74,6 +74,23 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 .paper li{margin:0 0 .4rem}
 .paper code{font-family:var(--f-mono);background:#f1f3f4;color:#0a3d44;padding:1px 5px;border-radius:4px;font-size:.84em}
 .paper a{color:#0b7c8b}
+.paper pre{margin:0 0 .6rem;background:#0f1b22;color:#cfe6ea;border-radius:6px;padding:10px 12px;overflow-x:auto;font-family:var(--f-mono);font-size:.82em;white-space:pre-wrap}
+.paper pre.cmd::before{content:"$ ";color:#49c5d6}
+.paper table{width:100%;border-collapse:collapse;margin:.5rem 0 .9rem;font-size:.85em}
+.paper th,.paper td{border:1px solid #d8dde3;padding:6px 9px;text-align:left;vertical-align:top}
+.paper th{background:#f1f4f7;color:#17323a}
+.paper .callout{border:1px solid #d8dde3;border-left:4px solid #0b7c8b;background:#f1f4f7;border-radius:6px;padding:10px 13px;margin:.6rem 0;font-size:.9em}
+.paper .callout.warn{border-left-color:#c0392b;background:#fbeceb}
+.paper .callout .ct{display:block;font-weight:700;margin-bottom:3px;color:#17323a}
+.paper .tool-step{border:1px solid #dde3e9;border-radius:7px;margin:.6rem 0;overflow:hidden}
+.paper .ts-head{background:#f1f4f7;border-bottom:1px solid #dde3e9;padding:7px 11px;font-size:.9em}
+.paper .ts-head code{background:none;color:#064e57;font-weight:700}
+.paper .ts-badge{font-size:.75em;color:#0b7c8b}
+.paper .ts-body{padding:9px 11px}
+.paper .lbl{font-family:var(--f-mono);font-size:.68em;text-transform:uppercase;letter-spacing:.04em;color:#8a97a4;margin:.45rem 0 .2rem;font-weight:600}
+.paper .diagram{overflow-x:auto;margin:.6rem 0}
+.paper .plan-svg{width:100%;min-width:680px;height:auto;display:block}
+.paper p.cap{font-size:.8em;color:#8a97a4;text-align:center;margin:.2rem 0 .6rem}
 
 .empty{max-width:560px;margin:8vh auto;text-align:center;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:30px}
 .empty h2{font-family:var(--f-head);color:var(--fg);margin:0 0 8px}
@@ -84,7 +101,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 <body>
 <div class="topbar">
   <div class="in">
-    <div class="brand"><span class="mk">⊕</span> 평가 보고서 편집</div>
+    <div class="brand"><span class="mk">⊕</span> 평가 계획서 편집</div>
     <div class="sp"></div>
     <button class="btn ghost" id="homeBtn" type="button">← 빌더로</button>
     <button class="btn ghost" id="themeBtn" type="button">◐ 테마</button>
@@ -107,11 +124,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 </div>
 
 <div class="stage" id="stage">
-  <p class="statusline" id="status"><span class="dot"></span><span id="statusText">보고서 불러오는 중…</span></p>
+  <p class="statusline" id="status"><span class="dot"></span><span id="statusText">계획서 불러오는 중…</span></p>
   <div class="paper" id="editor" contenteditable="true" spellcheck="false" hidden></div>
   <div class="empty" id="empty" hidden>
     <h2>보고서 내용이 없습니다</h2>
-    <p>빌더에서 기기 특성을 선택한 뒤 <b>“평가 보고서 생성”</b>을 눌러 이 페이지를 여세요.</p>
+    <p>빌더에서 기기 특성을 선택한 뒤 <b>“평가 계획서 생성”</b>을 눌러 이 페이지를 여세요.</p>
     <p><a href="index.html">← 방법론 빌더로 이동</a></p>
   </div>
 </div>
@@ -121,7 +138,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 const editor=document.getElementById('editor');
 const empty=document.getElementById('empty');
 const statusText=document.getElementById('statusText');
-let reportTitle='평가보고서';
+let reportTitle='평가계획서';
 
 function loadContent(){
   let body=null,title=null;
@@ -174,7 +191,24 @@ p.why{color:#555;margin:0 0 4pt}
 p.sig{margin-top:22pt;color:#333}
 ul{margin:0 0 8pt;padding-left:16pt}
 li{margin:0 0 5pt;page-break-inside:avoid}
-code{font-family:Consolas,'D2Coding','Courier New',monospace;background:#f1f3f4;color:#0a3d44;padding:1pt 4pt;border-radius:3px;font-size:9.5pt}`;
+code{font-family:Consolas,'D2Coding','Courier New',monospace;background:#f1f3f4;color:#0a3d44;padding:1pt 4pt;border-radius:3px;font-size:9.5pt}
+pre{margin:0 0 7pt;background:#0f1b22;color:#cfe6ea;border-radius:4px;padding:8pt 10pt;overflow-x:auto;font-family:Consolas,monospace;font-size:9pt;white-space:pre-wrap}
+pre.cmd::before{content:"$ ";color:#49c5d6}
+table{width:100%;border-collapse:collapse;margin:6pt 0 10pt;font-size:9.5pt}
+th,td{border:0.5pt solid #ccd3da;padding:4pt 7pt;text-align:left;vertical-align:top}
+th{background:#f1f4f7}
+.callout{border:0.5pt solid #ccd3da;border-left:3pt solid #0b7c8b;background:#f1f4f7;border-radius:4px;padding:8pt 11pt;margin:7pt 0;page-break-inside:avoid}
+.callout.warn{border-left-color:#c0392b;background:#fbeceb}
+.callout .ct{display:block;font-weight:700;margin-bottom:2pt}
+.tool-step{border:0.5pt solid #d8dde3;border-radius:5px;margin:7pt 0;overflow:hidden;page-break-inside:avoid}
+.ts-head{background:#f1f4f7;border-bottom:0.5pt solid #d8dde3;padding:5pt 9pt;font-size:10pt}
+.ts-head code{background:none;color:#064e57;font-weight:700}
+.ts-badge{font-size:8.5pt;color:#0b7c8b}
+.ts-body{padding:7pt 9pt}
+.lbl{font-family:Consolas,monospace;font-size:7.5pt;text-transform:uppercase;letter-spacing:.04em;color:#8a97a4;margin:5pt 0 2pt;font-weight:600}
+.diagram{overflow:hidden;margin:7pt 0}
+.plan-svg{width:100%;height:auto;display:block}
+p.cap{font-size:8.5pt;color:#8a97a4;text-align:center;margin:2pt 0 6pt}`;
 
 /* ---------- PDF (browser print → Save as PDF) ---------- */
 document.getElementById('pdfBtn').addEventListener('click',()=>{
@@ -210,6 +244,7 @@ function inlineRuns(node,style){
     if(c.nodeType===3){ if(c.nodeValue) out+=docRun(c.nodeValue,style); }
     else if(c.nodeType===1){
       const t=c.tagName; const s=Object.assign({},style);
+      if((t||'').toLowerCase()==='svg') return;
       if(t==='BR'){ out+='<w:r><w:br/></w:r>'; return; }
       if(t==='B'||t==='STRONG') s.bold=true;
       if(t==='I'||t==='EM') s.italic=true;
@@ -219,11 +254,27 @@ function inlineRuns(node,style){
   });
   return out;
 }
+function tableToXml(tbl){
+  let rows='';
+  tbl.querySelectorAll('tr').forEach(tr=>{
+    let cells='';
+    [...tr.children].forEach(cell=>{
+      if(cell.tagName!=='TH'&&cell.tagName!=='TD')return;
+      const bold=cell.tagName==='TH';
+      cells+='<w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/></w:tcPr>'+docP(inlineRuns(cell,{size:18,bold:bold}),{after:0})+'</w:tc>';
+    });
+    if(cells)rows+='<w:tr>'+cells+'</w:tr>';
+  });
+  const bd=['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="single" w:sz="4" w:color="CCCCCC"/>`).join('');
+  return '<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>'+bd+'</w:tblBorders></w:tblPr>'+rows+'</w:tbl>'+docP('');
+}
 function blockToXml(node){
   if(node.nodeType===3){ const t=node.nodeValue.trim(); return t?docP(docRun(t,{size:22})):''; }
   if(node.nodeType!==1) return '';
+  if((node.tagName||'').toLowerCase()==='svg') return '';
   const tag=node.tagName;
   switch(tag){
+    case 'TABLE': return tableToXml(node);
     case 'H1': return docP(inlineRuns(node,{bold:true,size:36}),{after:160});
     case 'H2': return docP(inlineRuns(node,{bold:true,size:28,color:'0C7D8C'}),{before:160,after:80});
     case 'H3': return docP(inlineRuns(node,{bold:true,size:24}),{before:120,after:40});

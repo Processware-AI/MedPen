@@ -358,7 +358,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <div class="panel" id="output" aria-live="polite">
         <div class="out-head" id="outHead" hidden>
           <h3>생성된 테스트 절차</h3>
-          <button class="copybtn" id="copyPlanBtn" type="button">📝 평가 보고서 생성</button>
+          <button class="copybtn" id="copyPlanBtn" type="button">📝 평가 계획서 생성</button>
         </div>
         <div class="out-empty" id="outEmpty">왼쪽에서 <b>기기 분류</b>를 먼저 선택하거나, 위 <b>기기 프리셋</b>을 누르면 맞춤 절차가 생성됩니다.</div>
         <div id="outBody" hidden></div>
@@ -828,53 +828,140 @@ function profileLine(){
   ['platform','conn','proto','context'].forEach(g=>{state[g].forEach(v=>parts.push(PROFILE_LABELS[g][v]));});
   return parts.join(' · ')||'—';
 }
-/* --- 평가 보고서 생성: 내용을 편집 페이지(report.html)로 전달 --- */
+/* --- 평가 계획서(가이드 수준) 생성: 편집 페이지(report.html)로 전달 --- */
 function htmlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function reportTitle(){
   const date=new Date().toISOString().slice(0,10);
   const cls=PROFILE_LABELS.class[state.class]||'plan';
-  return `평가보고서_${cls}_${date}`;
+  return `평가계획서_${cls}_${date}`;
+}
+function listify(g){
+  const out=[]; state[g].forEach(v=>out.push(PROFILE_LABELS[g][v])); return out.length?out.join(' · '):'—';
+}
+function networkSvg(){
+  // light-document palette (fixed) so it renders in editor paper, PDF, and prints cleanly
+  return `<svg class="plan-svg" viewBox="0 0 900 420" role="img" aria-label="테스트베드 네트워크 토폴로지">
+<defs><linearGradient id="fwgR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b7c8b"/><stop offset="1" stop-color="#17a3b5"/></linearGradient></defs>
+<ellipse cx="450" cy="38" rx="122" ry="27" fill="#f1f4f7" stroke="#8a97a4" stroke-dasharray="4 4"/>
+<text x="450" y="43" text-anchor="middle" font-size="14" fill="#566573">인터넷 / 클라우드</text>
+<line x1="450" y1="65" x2="450" y2="90" stroke="#8a97a4" stroke-dasharray="4 4"/>
+<rect x="352" y="90" width="196" height="34" rx="7" fill="#f1f4f7" stroke="#0b7c8b" stroke-dasharray="5 4"/>
+<text x="450" y="112" text-anchor="middle" font-size="13" fill="#566573">통제 프록시 / NAT · 기본 차단</text>
+<line x1="450" y1="124" x2="450" y2="148" stroke="#0b7c8b" stroke-width="1.5"/>
+<rect x="30" y="148" width="840" height="46" rx="9" fill="url(#fwgR)"/>
+<text x="450" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">LAB 방화벽 / 라우터 · VLAN 간 통제 · 전수 로깅</text>
+<line x1="450" y1="194" x2="450" y2="222" stroke="#0b7c8b" stroke-width="1.5"/>
+<line x1="127" y1="222" x2="763" y2="222" stroke="#0b7c8b" stroke-width="1.5"/>
+<line x1="127" y1="222" x2="127" y2="248" stroke="#0b7c8b" stroke-width="1.5"/>
+<line x1="339" y1="222" x2="339" y2="248" stroke="#0b7c8b" stroke-width="1.5"/>
+<line x1="551" y1="222" x2="551" y2="248" stroke="#0b7c8b" stroke-width="1.5"/>
+<line x1="763" y1="222" x2="763" y2="248" stroke="#0b7c8b" stroke-width="1.5"/>
+<rect x="769" y="228" width="36" height="16" rx="3" fill="#ffffff" stroke="#0b7c8b"/>
+<text x="787" y="240" text-anchor="middle" font-size="10" fill="#0b7c8b" font-family="monospace">TAP</text>
+<rect x="30" y="248" width="194" height="150" rx="8" fill="#f1f4f7" stroke="#dde3e9"/>
+<text x="44" y="274" font-size="11" fill="#0b7c8b" font-family="monospace">VLAN 10</text><text x="44" y="296" font-size="15" font-weight="700" fill="#141b22">공격자</text>
+<text x="44" y="320" font-size="12" fill="#566573">Kali + MedPen 툴셋</text><text x="44" y="338" font-size="12" fill="#566573">타깃·시뮬레이터로만</text>
+<rect x="242" y="248" width="194" height="150" rx="8" fill="#f1f4f7" stroke="#dde3e9"/>
+<text x="256" y="274" font-size="11" fill="#0b7c8b" font-family="monospace">VLAN 20</text><text x="256" y="296" font-size="15" font-weight="700" fill="#141b22">타깃 (DUT)</text>
+<text x="256" y="320" font-size="12" fill="#566573">대상 SaMD / SiMD</text><text x="256" y="338" font-size="12" fill="#566573">필요 포트·스냅샷</text>
+<rect x="454" y="248" width="194" height="150" rx="8" fill="#f1f4f7" stroke="#dde3e9"/>
+<text x="468" y="274" font-size="11" fill="#0b7c8b" font-family="monospace">VLAN 30</text><text x="468" y="296" font-size="15" font-weight="700" fill="#141b22">시뮬레이터</text>
+<text x="468" y="320" font-size="12" fill="#566573">DICOM·HL7·MQTT</text><text x="468" y="338" font-size="12" fill="#566573">PACS / EHR 모사</text>
+<rect x="666" y="248" width="194" height="150" rx="8" fill="#f1f4f7" stroke="#dde3e9"/>
+<text x="680" y="274" font-size="11" fill="#0b7c8b" font-family="monospace">VLAN 40</text><text x="680" y="296" font-size="15" font-weight="700" fill="#141b22">관리 · 캡처</text>
+<text x="680" y="320" font-size="12" fill="#566573">pcap · SIEM</text><text x="680" y="338" font-size="12" fill="#566573">점프호스트 전용</text>
+</svg>`;
 }
 function buildReportBody(){
   const date=new Date().toISOString().slice(0,10);
   const cls=PROFILE_LABELS.class[state.class]||'—';
   const preset=activePreset?(PRESETS.find(p=>p.id===activePreset)||{}).label:null;
+  const DET=window.MEDPEN_DETAIL||{};
+  const isSiMD=state.class==='simd';
   let b='';
-  b+=`<h1>SaMD/SiMD 침투 테스트 평가 보고서</h1>`;
+  b+=`<h1>SaMD/SiMD 침투 테스트 평가 계획서</h1>`;
   b+=`<p class="meta">생성일: ${date} &nbsp;|&nbsp; 기기 분류: ${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</p>`;
-  b+=`<p class="meta">프로파일: ${htmlEsc(profileLine())}</p>`;
-  b+=`<h2>1. 승인 및 범위 (Rules of Engagement)</h2>`;
-  b+=`<p>본 평가는 서면 권한이 확보된 자산(자체 기기·격리 테스트베드·계약된 평가)에 한해 수행한다. 실제 사용 중이거나 환자에게 연결된 장비에 대한 테스트는 환자 안전에 직접적 위험을 주므로 금지한다. 모든 활동은 사전 합의된 범위·시간·방법을 준수하며, 안전 영향이 있는 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
-  b+=`<h2>2. 테스트 절차</h2>`;
-  plan().forEach(({ph,why})=>{
-    const meta=PHASES[ph];
-    b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">목적: ${htmlEsc(why)}</p><ul>`;
-    if(ph==='report'){
-      b+=`<li>각 발견 항목을 CVSS + AAMI TIR57 안전 위해도로 이중 평가</li>`;
-      b+=`<li>FDA / IEC 62304 요구사항 ID에 매핑하고 SBOM 대조로 취약 구성요소 식별</li>`;
-    }
-    toolsFor(ph).forEach(t=>{
-      b+=`<li><b>${htmlEsc(t.id)}</b> [${t.inst?'설치됨':'설치 필요'}] — ${htmlEsc(t.samd)}<br><code>${htmlEsc(t.cmd.split('\n')[0])}</code></li>`;
-    });
-    b+=`</ul>`;
-  });
-  b+=`<h2>3. 표준 매핑</h2><ul>`+[
-    'FDA Premarket Cybersecurity Guidance (2023): SBOM·위협모델링·침투테스트 증거',
-    'IEC 62304: 소프트웨어 안전등급(A/B/C)·생명주기 프로세스',
-    'AAMI TIR57 / ISO 14971: 보안 위험과 안전 위험 연계',
-    'IEC 81001-5-1: 헬스 소프트웨어 보안 활동(사후시장 포함)',
-    'OWASP ASVS / MASVS / API Top 10: 검증 체크리스트',
-    'MITRE ATT&CK / Medical Device Rubric: 공격 기법 매핑'
-  ].map(s=>`<li>${htmlEsc(s)}</li>`).join('')+`</ul>`;
-  if(state.class==='simd'||state.platform.has('wearable')){
-    b+=`<h2>4. 안전 주의</h2><p>SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하·에뮬레이터)에서만 수행한다. 액추에이터·용량 제어 경로의 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
-  }else if(state.context.has('phi')){
-    b+=`<h2>4. 데이터 주의</h2><p>PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</p>`;
-  }
-  b+=`<h2>5. 권장 테스트 환경</h2><ul>`;
+  b+=`<p class="meta">프로파일: ${htmlEsc(profileLine())} &nbsp;|&nbsp; 생성: MedPen Methodology</p>`;
+  b+=`<div class="callout warn"><span class="ct">승인 및 안전 전제</span>본 계획서의 모든 절차는 서면 권한(RoE)이 확보된 격리 테스트베드와 합성·비식별 데이터에서만 수행한다. 실제 사용 중이거나 환자에게 연결된 장비 테스트는 금지한다. SiMD/이식형 실동작 테스트는 안전 담당자 승인·하드웨어 안전장치를 전제로 한다.</div>`;
+
+  b+=`<h2>1. 평가 개요 · 범위 (Rules of Engagement)</h2>`;
+  b+=`<p>본 평가는 사전 합의된 범위·시간·방법을 준수하며, 가용성·환자 안전에 영향을 줄 수 있는 활동은 운영과 분리된 복제본에서 통제 하에 수행한다. 산출물(pcap·로그·스크린샷)은 암호화 보관하고 계약 종료 시 파기한다.</p>`;
+
+  b+=`<h2>2. SaMD / SiMD 소개</h2>`;
+  b+=`<p><b>SaMD</b>는 하드웨어와 독립적으로 의료 목적을 수행하는 소프트웨어(진단 앱·분석 클라우드·PACS 뷰어), <b>SiMD</b>는 물리 의료기기의 일부로 동작하는 내장 소프트웨어(펌프 펌웨어·모니터·이식형)이다. 공격 표면과 안전 영향이 다르므로 테스트 전략이 달라진다.</p>`;
+  b+=`<p>본 대상은 <b>${htmlEsc(cls)}</b>${preset?` (${htmlEsc(preset)})`:''}로, ${isSiMD?'펌웨어 추출·무선/BLE·하드웨어 인터페이스·프로토콜 퍼징 중심의 내장형 공격 표면':'웹/API·인증·세션·클라우드 설정·전송 보안 중심의 독립형 공격 표면'}을 우선 평가한다.`;
+  b+=` 안전 영향은 ${isSiMD?'직접적 환자 위해(용량 변조·정지 가능) — 격리 벤치 필수':'데이터 무결성·가용성(오진·PHI 유출)'}로 본다.</p>`;
+
+  b+=`<h2>3. 평가 대상 프로파일</h2>`;
+  b+=`<table><tbody>`+
+     `<tr><th>기기 분류</th><td>${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</td></tr>`+
+     `<tr><th>플랫폼</th><td>${htmlEsc(listify('platform'))}</td></tr>`+
+     `<tr><th>연결성</th><td>${htmlEsc(listify('conn'))}</td></tr>`+
+     `<tr><th>의료 프로토콜</th><td>${htmlEsc(listify('proto'))}</td></tr>`+
+     `<tr><th>노출 · 데이터</th><td>${htmlEsc(listify('context'))}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>4. 테스트 환경 네트워크 구성</h2>`;
+  b+=`<p>평가 전 격리 테스트베드를 구축한다. 임상·운영망과 완전 분리, 외부는 통제 게이트웨이로만, 전 구간 트래픽 캡처가 원칙이다.</p>`;
+  b+=`<div class="diagram">${networkSvg()}</div>`;
+  b+=`<p class="cap">네트워크 구성도: 인터넷 → 통제 게이트웨이 → LAB 방화벽 → VLAN(공격자·타깃·시뮬레이터·관리/캡처). 점선=격리 경계, TAP=캡처 지점.</p>`;
+  b+=`<h3>권장 랩 구성 (프로파일 기반)</h3><ul>`;
   labConfig().forEach(x=>{ b+=`<li><b>${htmlEsc(x.k)}</b> — ${htmlEsc(x.v)}</li>`; });
   b+=`</ul>`;
-  b+=`<h2>6. 발견 요약 (작성)</h2><p>발견 항목별 위해도·영향·권고를 여기에 작성합니다.</p>`;
+
+  b+=`<h2>5. 테스트 절차 (단계별 · 툴 예시)</h2>`;
+  b+=`<p>각 단계는 목적 → 대표 툴(실행 예 · 수행 절차 · 확인 포인트) 순으로 수행한다. 모든 명령은 격리 테스트베드의 가상 대상을 예로 든다.</p>`;
+  plan().forEach(({ph,why})=>{
+    const meta=PHASES[ph];
+    b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">목적: ${htmlEsc(why)}</p>`;
+    if(ph==='report'){
+      b+=`<ul><li>각 발견 항목을 CVSS + AAMI TIR57 안전 위해도로 이중 평가</li>`+
+         `<li>FDA / IEC 62304 요구사항 ID에 매핑하고 SBOM 대조로 취약 구성요소 식별</li></ul>`;
+    }
+    toolsFor(ph).forEach(t=>{
+      const d=DET[t.id]||{};
+      b+=`<div class="tool-step"><div class="ts-head"><code>${htmlEsc(t.id)}</code> <span class="ts-badge">${t.inst?'설치됨':'설치 필요'}</span></div><div class="ts-body">`;
+      b+=`<p class="lbl">실행 예</p><pre class="cmd">${htmlEsc(t.cmd.split('\n')[0])}</pre>`;
+      if(d.tc&&d.tc.length){
+        b+=`<p class="lbl">수행 절차</p><ul>`;
+        d.tc.forEach(c=>{ b+=`<li><b>${htmlEsc(c.t)}</b> — ${htmlEsc(c.s)}</li>`; });
+        b+=`</ul>`;
+      }
+      b+=`<p class="lbl">확인 포인트 (예상 결과 해석)</p><p>${htmlEsc(t.samd)}</p>`;
+      b+=`</div></div>`;
+    });
+  });
+
+  b+=`<h2>6. 위해도 산정 (CVSS × 안전 영향 · AAMI TIR57)</h2>`;
+  b+=`<p>보안 심각도(CVSS)와 환자 안전 영향을 함께 보아 우선순위를 정한다. 안전 영향이 크면 CVSS가 낮아도 우선 처리한다.</p>`;
+  b+=`<table><thead><tr><th>안전 영향 \\ 보안 심각도</th><th>낮음</th><th>중간</th><th>높음</th><th>치명</th></tr></thead><tbody>`+
+     `<tr><th>경미</th><td>관찰</td><td>낮음</td><td>중간</td><td>높음</td></tr>`+
+     `<tr><th>중대</th><td>낮음</td><td>중간</td><td>높음</td><td>치명</td></tr>`+
+     `<tr><th>심각</th><td>중간</td><td>높음</td><td>치명</td><td>치명</td></tr>`+
+     `<tr><th>생명 위협</th><td>높음</td><td>치명</td><td>치명</td><td>치명</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>7. 표준 · 규제 매핑</h2>`;
+  b+=`<table><thead><tr><th>표준 / 규제</th><th>해당 단계 · 활동</th></tr></thead><tbody>`+[
+    ['FDA Premarket Cybersecurity (2023)','전 단계 — SBOM·위협모델링·테스트 증거'],
+    ['IEC 62304','안전등급(A/B/C)별 테스트 깊이'],
+    ['ISO 14971 · AAMI TIR57','6장 위해도 산정(보안-안전 연계)'],
+    ['IEC 81001-5-1','생명주기 전반 보안 활동'],
+    ['IEC 62443 · 80001-1','4장 테스트베드 분리·네트워크 위험관리'],
+    ['OWASP ASVS / API Top 10 / MASVS','5장 웹·API·모바일 검증'],
+    ['MITRE ATT&CK','5장 공격 기법 매핑'],
+    ['HIPAA / EU MDR·IVDR / MFDS','PHI 보호·규제 제출 매핑']
+  ].map(r=>`<tr><th>${htmlEsc(r[0])}</th><td>${htmlEsc(r[1])}</td></tr>`).join('')+`</tbody></table>`;
+
+  b+=`<h2>8. 체크리스트 · 발견 요약</h2>`;
+  b+=`<p><b>평가 전:</b> RoE 확보 · 테스트베드 구축 · 합성 데이터 적재 · 스냅샷/복원 계획 · 안전 담당자 승인 · 로그/pcap 가동</p>`;
+  b+=`<p><b>평가 후:</b> 발견 재현 절차·증거 정리 · 위해도 산정 · 표준 매핑 · 산출물 암호화 · 종료 시 파기</p>`;
+  if(isSiMD||state.platform.has('wearable')){
+    b+=`<div class="callout warn"><span class="ct">안전 주의</span>SiMD/이식형 실동작 테스트는 환자와 분리된 전용 벤치(모의 부하·에뮬레이터)에서만, 안전 담당자 승인과 하드웨어 안전장치 하에 수행한다.</div>`;
+  }else if(state.context.has('phi')){
+    b+=`<div class="callout warn"><span class="ct">데이터 주의</span>PHI를 다루므로 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</div>`;
+  }
+  b+=`<h3>발견 요약 (작성)</h3><p>발견 항목별 제목·영향·재현 절차·증거·CVSS·안전 위해도·권고를 여기에 작성합니다.</p>`;
   b+=`<p class="sig">작성자: ____________________    검토자: ____________________    일자: ${date}</p>`;
   return b;
 }
