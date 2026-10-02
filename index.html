@@ -284,7 +284,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <div class="panel" id="output" aria-live="polite">
         <div class="out-head" id="outHead" hidden>
           <h3>생성된 테스트 절차</h3>
-          <button class="copybtn" id="copyPlanBtn" type="button">⬇ 평가 계획서 (PDF)</button>
+          <button class="copybtn" id="copyPlanBtn" type="button">📝 평가 보고서 생성</button>
         </div>
         <div class="out-empty" id="outEmpty">왼쪽에서 <b>기기 분류</b>를 먼저 선택하거나, 위 <b>기기 프리셋</b>을 누르면 맞춤 절차가 생성됩니다.</div>
         <div id="outBody" hidden></div>
@@ -720,19 +720,21 @@ function profileLine(){
   ['platform','conn','proto','context'].forEach(g=>{state[g].forEach(v=>parts.push(PROFILE_LABELS[g][v]));});
   return parts.join(' · ')||'—';
 }
-/* --- PDF 생성 (브라우저 인쇄 → PDF 저장; 한글 폰트 임베드 불필요, 텍스트 선택 가능) --- */
+/* --- 평가 보고서 생성: 내용을 편집 페이지(report.html)로 전달 --- */
 function htmlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function buildPlanHtmlDoc(){
+function reportTitle(){
+  const date=new Date().toISOString().slice(0,10);
+  const cls=PROFILE_LABELS.class[state.class]||'plan';
+  return `평가보고서_${cls}_${date}`;
+}
+function buildReportBody(){
   const date=new Date().toISOString().slice(0,10);
   const cls=PROFILE_LABELS.class[state.class]||'—';
   const preset=activePreset?(PRESETS.find(p=>p.id===activePreset)||{}).label:null;
-  const fname=`평가계획서_${cls}_${date}`;
   let b='';
-  b+=`<h1>SaMD/SiMD 침투 테스트 평가 계획서</h1>`;
-  b+=`<table class="meta"><tr><th>생성일</th><td>${date}</td></tr>`+
-     `<tr><th>기기 분류</th><td>${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</td></tr>`+
-     `<tr><th>프로파일</th><td>${htmlEsc(profileLine())}</td></tr>`+
-     `<tr><th>생성 도구</th><td>MedPen Methodology</td></tr></table>`;
+  b+=`<h1>SaMD/SiMD 침투 테스트 평가 보고서</h1>`;
+  b+=`<p class="meta">생성일: ${date} &nbsp;|&nbsp; 기기 분류: ${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</p>`;
+  b+=`<p class="meta">프로파일: ${htmlEsc(profileLine())}</p>`;
   b+=`<h2>1. 승인 및 범위 (Rules of Engagement)</h2>`;
   b+=`<p>본 평가는 서면 권한이 확보된 자산(자체 기기·격리 테스트베드·계약된 평가)에 한해 수행한다. 실제 사용 중이거나 환자에게 연결된 장비에 대한 테스트는 환자 안전에 직접적 위험을 주므로 금지한다. 모든 활동은 사전 합의된 범위·시간·방법을 준수하며, 안전 영향이 있는 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
   b+=`<h2>2. 테스트 절차</h2>`;
@@ -744,7 +746,7 @@ function buildPlanHtmlDoc(){
       b+=`<li>FDA / IEC 62304 요구사항 ID에 매핑하고 SBOM 대조로 취약 구성요소 식별</li>`;
     }
     toolsFor(ph).forEach(t=>{
-      b+=`<li><b>${htmlEsc(t.id)}</b> <span class="badge">${t.inst?'설치됨':'설치 필요'}</span> — ${htmlEsc(t.samd)}<br><code>${htmlEsc(t.cmd.split('\n')[0])}</code></li>`;
+      b+=`<li><b>${htmlEsc(t.id)}</b> [${t.inst?'설치됨':'설치 필요'}] — ${htmlEsc(t.samd)}<br><code>${htmlEsc(t.cmd.split('\n')[0])}</code></li>`;
     });
     b+=`</ul>`;
   });
@@ -757,44 +759,23 @@ function buildPlanHtmlDoc(){
     'MITRE ATT&CK / Medical Device Rubric: 공격 기법 매핑'
   ].map(s=>`<li>${htmlEsc(s)}</li>`).join('')+`</ul>`;
   if(state.class==='simd'||state.platform.has('wearable')){
-    b+=`<h2 class="warn">4. 안전 주의</h2><p class="warnbox">SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하·에뮬레이터)에서만 수행한다. 액추에이터·용량 제어 경로의 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
+    b+=`<h2>4. 안전 주의</h2><p>SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하·에뮬레이터)에서만 수행한다. 액추에이터·용량 제어 경로의 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
   }else if(state.context.has('phi')){
-    b+=`<h2 class="warn">4. 데이터 주의</h2><p class="warnbox">PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</p>`;
+    b+=`<h2>4. 데이터 주의</h2><p>PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</p>`;
   }
-  b+=`<footer>MedPen Methodology · 승인된 보안 평가 전용 · ${date}</footer>`;
-  const css=`@page{size:A4;margin:18mm}
-*{box-sizing:border-box}
-body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR','Nanum Gothic',system-ui,sans-serif;color:#1a1a1a;font-size:11pt;line-height:1.5;margin:0}
-h1{font-size:19pt;margin:0 0 6pt;color:#0a3d44;border-bottom:2pt solid #0c7d8c;padding-bottom:6pt}
-h2{font-size:13pt;margin:16pt 0 6pt;color:#0c7d8c;border-bottom:0.5pt solid #cdd7db;padding-bottom:3pt}
-h2.warn{color:#b03028;border-bottom-color:#e5c3bf}
-h3{font-size:11.5pt;margin:11pt 0 3pt;color:#17323a;page-break-after:avoid}
-p{margin:0 0 6pt}
-p.why{color:#555;margin:0 0 4pt}
-table.meta{border-collapse:collapse;margin:6pt 0;font-size:10pt}
-table.meta th{text-align:left;color:#666;font-weight:600;padding:2pt 14pt 2pt 0;vertical-align:top;white-space:nowrap}
-table.meta td{padding:2pt 0}
-ul{margin:0 0 8pt;padding-left:16pt}
-li{margin:0 0 5pt;page-break-inside:avoid}
-code{font-family:Consolas,'D2Coding','Courier New',monospace;background:#f1f3f4;color:#0a3d44;padding:1pt 4pt;border-radius:3px;font-size:9.5pt}
-.badge{font-size:8pt;background:#e3eef0;color:#0c7d8c;border:0.5pt solid #bcd4d8;border-radius:3px;padding:0 4pt}
-.warnbox{background:#fbeceb;border-left:3pt solid #c0392b;padding:8pt 10pt;color:#7a241d;margin:0 0 6pt}
-footer{margin-top:16pt;padding-top:8pt;border-top:0.5pt solid #ddd;color:#999;font-size:8.5pt}`;
-  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${htmlEsc(fname)}</title><style>${css}</style></head><body>${b}</body></html>`;
-}
-function downloadPdf(){
-  const old=document.getElementById('pdfFrame');if(old)old.remove();
-  const f=document.createElement('iframe');f.id='pdfFrame';
-  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-  f.onload=function(){try{f.contentWindow.focus();f.contentWindow.print();}catch(e){}setTimeout(function(){f.remove();},1500);};
-  document.body.appendChild(f);
-  const d=f.contentWindow.document;d.open();d.write(buildPlanHtmlDoc());d.close();
+  b+=`<h2>5. 발견 요약 (작성)</h2><p>발견 항목별 위해도·영향·권고를 여기에 작성합니다.</p>`;
+  b+=`<p class="sig">작성자: ____________________    검토자: ____________________    일자: ${date}</p>`;
+  return b;
 }
 document.getElementById('copyPlanBtn').addEventListener('click',()=>{
   const btn=document.getElementById('copyPlanBtn');
   try{
-    downloadPdf();
-    const o=btn.textContent;btn.textContent='✓ 인쇄 대화상자 열림';btn.classList.add('done');
+    const body=buildReportBody(), title=reportTitle();
+    try{localStorage.setItem('mp-report',body);localStorage.setItem('mp-report-title',title);}catch(e){}
+    try{window.MP_REPORT={body:body,title:title};}catch(e){}
+    const w=window.open('report.html','_blank');
+    if(!w){ location.href='report.html'; }
+    const o=btn.textContent;btn.textContent='✓ 편집 페이지 열림';btn.classList.add('done');
     setTimeout(()=>{btn.textContent=o;btn.classList.remove('done');},2200);
   }catch(e){btn.textContent='오류: '+e.message;}
 });
