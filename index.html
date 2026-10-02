@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,sans-serif;background:#f3f5f7}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>MedPen Methodology</title>
+<style>
+/* Layout: fixed left phase-rail + scrollable content; interactive builder panel up top.
+   Clinical-technical identity — cool ink neutrals, medical teal accent, signal amber/red for severity. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --surface-2:#eef1f4; --line:#d8dde3;
+  --fg:#17202a; --muted:#5a6775; --faint:#8793a0;
+  --accent:#0c7d8c; --accent-weak:#d4ebee; --accent-ink:#065059;
+  --ok:#2f8f4e; --warn:#b5730b; --crit:#c0392b; --info:#2d6fb3;
+  --code-bg:#0f1b22; --code-fg:#cfe6ea;
+  --r:10px; --r-sm:6px;
+  --f-head:"Archivo","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
+  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
+  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f; --info:#5a9fe0;
+  --code-bg:#0a1217; --code-fg:#cfe6ea;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
+  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
+  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f; --info:#5a9fe0;
+  --code-bg:#0a1217; --code-fg:#cfe6ea;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);text-wrap:balance;line-height:1.15;margin:0}
+code,kbd,.mono{font-family:var(--f-mono)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ---- shell ---- */
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;min-height:58px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:700;letter-spacing:-.01em;font-size:1.05rem}
+.brand .mk{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;font-size:1rem}
+nav.top-nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav.top-nav a{color:var(--muted);padding:6px 10px;border-radius:var(--r-sm);font-size:.82rem;font-weight:600}
+nav.top-nav a:hover{background:var(--surface-2);text-decoration:none;color:var(--fg)}
+.theme-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:var(--r-sm);padding:6px 10px;cursor:pointer;font-size:.82rem;font-weight:600;font-family:var(--f-body)}
+
+/* ---- hero ---- */
+.hero{padding-block:30px 10px}
+.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;font-family:var(--f-mono)}
+.hero h1{font-size:clamp(1.7rem,4.5vw,2.7rem);margin:.4rem 0 .5rem;font-weight:800;letter-spacing:-.02em}
+.hero p.lede{color:var(--muted);max-width:60ch;font-size:1.02rem}
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;min-width:0}
+.stat b{font-family:var(--f-head);font-size:1.3rem;display:block;font-variant-numeric:tabular-nums}
+.stat span{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+/* ---- authorization banner ---- */
+.authbox{display:flex;gap:12px;align-items:flex-start;background:var(--accent-weak);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-left:4px solid var(--accent);border-radius:var(--r);padding:14px 16px;margin-top:20px}
+.authbox .ic{font-size:1.1rem;flex:none}
+.authbox p{margin:0;font-size:.86rem;color:var(--accent-ink)}
+.authbox b{color:var(--accent-ink)}
+
+section.band{padding-block:34px;scroll-margin-top:72px}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.sec-head h2{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+.sec-head .n{font-family:var(--f-mono);color:var(--accent);font-size:.9rem;font-weight:700}
+.sec-sub{color:var(--muted);max-width:68ch;margin:0 0 20px;font-size:.92rem}
+
+/* ---- builder ---- */
+.builder{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:820px){.builder{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.panel.sticky{position:sticky;top:76px}
+@media(max-width:820px){.panel.sticky{position:static}}
+.fieldset{margin-bottom:16px}
+.fieldset:last-child{margin-bottom:0}
+.flabel{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:700;margin-bottom:7px;display:block}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:999px;padding:5px 12px;font-size:.8rem;cursor:pointer;font-family:var(--f-body);transition:background .12s,border-color .12s}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.resetb{margin-top:4px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;font-size:.8rem;font-family:var(--f-body);width:100%}
+.resetb:hover{border-color:var(--crit);color:var(--crit)}
+/* presets */
+.preset-lab{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:700;margin-bottom:9px;display:block}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.preset{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:9px 13px;cursor:pointer;text-align:left;font-family:var(--f-body);min-width:0;transition:border-color .12s,background .12s}
+.preset:hover{border-color:var(--accent)}
+.preset[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-weak)}
+.preset b{display:block;font-size:.86rem;font-weight:700;color:var(--fg);line-height:1.2}
+.preset span{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+.preset[aria-pressed="true"] b{color:var(--accent-ink)}
+.preset .del{color:var(--crit);cursor:pointer;text-decoration:underline;font-family:var(--f-body)}
+.empty-presets{font-size:.78rem;color:var(--faint);font-family:var(--f-body);padding:4px 0}
+.save-row{display:flex;gap:6px;margin-top:12px}
+.save-row input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:var(--r-sm);padding:7px 10px;font-size:.8rem;font-family:var(--f-body);outline:none}
+.save-row input:focus{border-color:var(--accent)}
+.savebtn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;font-size:.8rem;font-weight:600;font-family:var(--f-body);white-space:nowrap}
+.savebtn:hover{background:var(--accent-ink)}
+.save-hint{font-size:.74rem;color:var(--warn);margin:6px 0 0}
+
+/* output */
+.out-empty{color:var(--faint);font-size:.9rem;padding:28px 10px;text-align:center}
+.profile-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.ptag{font-family:var(--f-mono);font-size:.72rem;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:3px 8px;color:var(--muted)}
+.ptag b{color:var(--fg);font-weight:600}
+.phase{border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;overflow:hidden;background:var(--surface)}
+.phase-h{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.phase-h .pn{width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:.85rem;flex:none}
+.phase-h h4{font-size:.98rem}
+.phase-h .pwhy{font-size:.76rem;color:var(--muted);margin-left:auto;text-align:right;max-width:46%}
+.phase-body{padding:12px 14px}
+.toolline{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}
+.toolline:last-child{border-bottom:0}
+.toolline .tn{font-family:var(--f-mono);font-weight:600;font-size:.86rem;flex:none;min-width:116px}
+.toolline .tn a{color:var(--fg)}
+.toolline .td{font-size:.82rem;color:var(--muted)}
+.toolline .td .cmd{display:block;margin-top:3px}
+.badge{font-family:var(--f-mono);font-size:.64rem;padding:1px 6px;border-radius:4px;vertical-align:middle;font-weight:600;white-space:nowrap}
+.b-inst{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.b-miss{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+.note-line{font-size:.82rem;color:var(--muted);margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--info)}
+/* export */
+.out-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.out-head h3{font-size:1rem;font-weight:700}
+.copybtn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer;font-size:.82rem;font-weight:600;font-family:var(--f-body);white-space:nowrap}
+.copybtn:hover{background:var(--accent-ink)}
+.copybtn.done{background:var(--ok);border-color:var(--ok)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;max-width:720px;width:100%;max-height:82vh;display:flex;flex-direction:column;gap:10px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal-head h3{font-size:1rem;font-weight:700}
+.modal-head button{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:var(--r-sm);padding:6px 12px;cursor:pointer;font-family:var(--f-body);font-size:.82rem}
+.modal-box textarea{width:100%;flex:1;min-height:320px;font-family:var(--f-mono);font-size:.76rem;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;resize:vertical;line-height:1.5}
+.modal-hint{font-size:.78rem;color:var(--muted);margin:0}
+
+/* ---- catalog ---- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.search{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:0 12px}
+.search input{border:0;background:none;color:var(--fg);padding:10px 0;font-size:.9rem;width:100%;font-family:var(--f-body);outline:none}
+.filterbtns{display:flex;gap:6px;flex-wrap:wrap}
+.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+@media(max-width:520px){.catgrid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-h h4{font-family:var(--f-mono);font-size:.98rem;font-weight:700}
+.cat-pill{font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-weak);padding:2px 7px;border-radius:999px;font-weight:700}
+.card p.desc{font-size:.85rem;color:var(--muted);margin:0}
+.card .samd{font-size:.8rem;color:var(--fg);background:var(--surface-2);border-radius:var(--r-sm);padding:7px 9px;border-left:3px solid var(--accent)}
+.card .samd b{color:var(--accent-ink);font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:2px}
+pre.cmd,code.cmd{background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:.78rem;border-radius:var(--r-sm);padding:9px 11px;overflow-x:auto;margin:0;white-space:pre;display:block}
+.card .meta{margin-top:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.nores{color:var(--faint);padding:30px;text-align:center;grid-column:1/-1}
+
+/* ---- reference / standards ---- */
+.refgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.refcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px}
+.refcard h4{font-size:.95rem;margin-bottom:6px}
+.refcard p{font-size:.82rem;color:var(--muted);margin:0}
+.refcard .tag{font-family:var(--f-mono);font-size:.7rem;color:var(--accent);font-weight:700}
+
+/* surface attack table */
+.cmp{width:100%;border-collapse:collapse;font-size:.85rem}
+.cmp th,.cmp td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp th{font-family:var(--f-head);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.cmp td b{color:var(--accent-ink)}
+.cmp-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+
+footer{border-top:1px solid var(--line);padding-block:24px 34px;margin-top:20px;color:var(--faint);font-size:.8rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="mk">⊕</span> MedPen Methodology</div>
+    <nav class="top-nav">
+      <a href="#builder">방법론 빌더</a>
+      <a href="#surface">공격 표면</a>
+      <a href="#catalog">툴 카탈로그</a>
+      <a href="#standards">표준·근거</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="테마 전환">◐ Theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow">SaMD · SiMD Penetration Testing Playbook</span>
+    <h1>의료기기 소프트웨어 침투 테스트 방법론</h1>
+    <p class="lede">환경과 기기 특성을 선택하면, Kali Linux 툴 조합으로 구성된 단계별 테스트 절차를 생성합니다. SaMD(독립형 의료 소프트웨어)와 SiMD(기기 내장 소프트웨어)의 서로 다른 공격 표면을 구분해 다룹니다.</p>
+    <div class="stat-row">
+      <div class="stat"><b id="stInstalled">—</b><span>설치 확인된 툴</span></div>
+      <div class="stat"><b id="stTotal">—</b><span>카탈로그 항목</span></div>
+      <div class="stat"><b>9</b><span>테스트 단계</span></div>
+      <div class="stat"><b>2</b><span>기기 분류 (SaMD/SiMD)</span></div>
+    </div>
+    <div class="authbox" role="note">
+      <span class="ic">⚠️</span>
+      <p><b>승인 전제.</b> 이 방법론은 서면 권한(Rules of Engagement)이 확보된 환경 — 자체 기기, 격리된 테스트베드, 계약된 평가 — 에서만 사용합니다. 실제 사용 중인 의료기기나 환자 연결 장비에 대한 테스트는 환자 안전에 직접적 위험을 주므로 금지됩니다. FDA·IEC 62304·AAMI TIR57 프레임워크 하의 사전/사후 시장 보안 평가를 지원하는 문서입니다.</p>
+    </div>
+  </section>
+
+  <!-- ============ BUILDER ============ -->
+  <section class="band" id="builder">
+    <div class="sec-head"><span class="n">01</span><h2>방법론 빌더</h2></div>
+    <p class="sec-sub">대상의 특성을 선택하세요. 선택에 따라 적용 가능한 테스트 단계가 켜지고, 각 단계에 맞는 툴 조합과 명령 예시가 생성됩니다. 아래 <b>기기 프리셋</b>으로 대표 구성을 한 번에 불러온 뒤 세부 조정할 수 있습니다.</p>
+    <span class="preset-lab">기기 프리셋 — 클릭해 프로파일 불러오기</span>
+    <div class="presets" id="presets"></div>
+    <span class="preset-lab">내 프리셋 — 저장한 구성 (이 브라우저에만 저장)</span>
+    <div class="presets" id="myPresets"></div>
+    <div class="builder">
+      <div class="panel sticky" id="form">
+        <div class="fieldset">
+          <span class="flabel">기기 분류</span>
+          <div class="opts" data-group="class" data-single="1">
+            <button class="chip" type="button" data-v="samd">SaMD · 독립형</button>
+            <button class="chip" type="button" data-v="simd">SiMD · 내장형</button>
+          </div>
+        </div>
+        <div class="fieldset">
+          <span class="flabel">플랫폼 / 폼팩터</span>
+          <div class="opts" data-group="platform">
+            <button class="chip" type="button" data-v="web">웹 · 클라우드</button>
+            <button class="chip" type="button" data-v="mobile">모바일 앱</button>
+            <button class="chip" type="button" data-v="desktop">데스크톱</button>
+            <button class="chip" type="button" data-v="embedded">임베디드 펌웨어</button>
+            <button class="chip" type="button" data-v="wearable">웨어러블·이식형</button>
+          </div>
+        </div>
+        <div class="fieldset">
+          <span class="flabel">연결성</span>
+          <div class="opts" data-group="conn">
+            <button class="chip" type="button" data-v="ip">Wi-Fi / 이더넷 (IP)</button>
+            <button class="chip" type="button" data-v="ble">Bluetooth / BLE</button>
+            <button class="chip" type="button" data-v="rf">전용 RF</button>
+            <button class="chip" type="button" data-v="usb">USB / 시리얼</button>
+            <button class="chip" type="button" data-v="cell">셀룰러</button>
+          </div>
+        </div>
+        <div class="fieldset">
+          <span class="flabel">의료 데이터 프로토콜</span>
+          <div class="opts" data-group="proto">
+            <button class="chip" type="button" data-v="dicom">DICOM (영상)</button>
+            <button class="chip" type="button" data-v="hl7">HL7 / FHIR</button>
+            <button class="chip" type="button" data-v="mqtt">MQTT / IoT</button>
+            <button class="chip" type="button" data-v="prop">전용·비공개</button>
+          </div>
+        </div>
+        <div class="fieldset">
+          <span class="flabel">노출 · 데이터</span>
+          <div class="opts" data-group="context">
+            <button class="chip" type="button" data-v="internet">인터넷 노출</button>
+            <button class="chip" type="button" data-v="phi">PHI/PII 처리</button>
+            <button class="chip" type="button" data-v="physical">물리 접근 가능</button>
+          </div>
+        </div>
+        <div class="save-row">
+          <input id="presetName" type="text" placeholder="프리셋 이름 (예: 우리병원 펌프)" aria-label="프리셋 이름">
+          <button class="savebtn" id="savePresetBtn" type="button">＋ 저장</button>
+        </div>
+        <p class="save-hint" id="saveHint" hidden>먼저 기기 분류를 선택하세요.</p>
+        <button class="resetb" type="button" id="resetBtn">선택 초기화</button>
+      </div>
+
+      <div class="panel" id="output" aria-live="polite">
+        <div class="out-head" id="outHead" hidden>
+          <h3>생성된 테스트 절차</h3>
+          <button class="copybtn" id="copyPlanBtn" type="button">⬇ 평가 계획서 (PDF)</button>
+        </div>
+        <div class="out-empty" id="outEmpty">왼쪽에서 <b>기기 분류</b>를 먼저 선택하거나, 위 <b>기기 프리셋</b>을 누르면 맞춤 절차가 생성됩니다.</div>
+        <div id="outBody" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ATTACK SURFACE ============ -->
+  <section class="band" id="surface">
+    <div class="sec-head"><span class="n">02</span><h2>SaMD vs SiMD 공격 표면</h2></div>
+    <p class="sec-sub">같은 "의료 소프트웨어"라도 공격 표면과 안전 영향이 다릅니다. 방법론 빌더는 이 차이를 반영해 단계를 배분합니다.</p>
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th>관점</th><th>SaMD · 독립형</th><th>SiMD · 내장형</th></tr></thead>
+        <tbody>
+          <tr><td><b>정의</b></td><td>하드웨어와 독립적으로 의료 목적을 수행하는 소프트웨어 (진단 앱, 분석 클라우드, PACS 뷰어)</td><td>물리 의료기기의 일부로 동작하는 소프트웨어 (인퓨전 펌프, 모니터, 이식형 펌웨어)</td></tr>
+          <tr><td><b>주 공격 표면</b></td><td>웹/API, 인증·세션, 클라우드 설정, 모바일 앱 저장소, 서버측 로직</td><td>펌웨어, 디버그 포트(UART/JTAG), 무선 프로토콜, 부트체인, 센서/액추에이터 경로</td></tr>
+          <tr><td><b>핵심 단계</b></td><td>정찰 → 웹/API 테스트 → 인증·암호 → 프로토콜</td><td>펌웨어 추출/분석 → 무선·BLE → 프로토콜 퍼징 → 물리 인터페이스</td></tr>
+          <tr><td><b>안전 영향</b></td><td>데이터 무결성·가용성(오진, PHI 유출)</td><td>직접적 환자 위해(용량 변조, 정지)—<b>테스트는 반드시 격리 벤치에서</b></td></tr>
+          <tr><td><b>대표 표준</b></td><td>FDA Premarket Cybersecurity, OWASP ASVS/MASVS</td><td>IEC 62304, AAMI TIR57, IEC 81001-5-1, MITRE Rubric</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ CATALOG ============ -->
+  <section class="band" id="catalog">
+    <div class="sec-head"><span class="n">03</span><h2>툴 카탈로그</h2></div>
+    <p class="sec-sub">이 Kali 시스템에서 확인된 설치 상태를 함께 표기합니다. <span class="badge b-inst">INSTALLED</span> 는 현재 사용 가능, <span class="badge b-miss">apt install</span> 은 추가 설치가 필요한 권장 툴입니다.</p>
+    <div class="toolbar">
+      <label class="search"><span>🔎</span><input id="searchIn" type="text" placeholder="툴 이름, 용도 검색 (예: dicom, firmware, ble)" aria-label="툴 검색"></label>
+      <div class="filterbtns" id="catFilters"></div>
+    </div>
+    <div class="catgrid" id="catGrid"></div>
+  </section>
+
+  <!-- ============ STANDARDS ============ -->
+  <section class="band" id="standards">
+    <div class="sec-head"><span class="n">04</span><h2>표준 · 근거</h2></div>
+    <p class="sec-sub">방법론 단계는 아래 규제·프레임워크에 매핑됩니다. 평가 보고서 작성 시 추적성(traceability) 근거로 사용하세요.</p>
+    <div class="refgrid">
+      <div class="refcard"><span class="tag">FDA 2023</span><h4>Premarket Cybersecurity Guidance</h4><p>SBOM, 위협 모델링, 침투 테스트 증거를 시판 전 제출물에 요구. SaMD/SiMD 공통.</p></div>
+      <div class="refcard"><span class="tag">IEC 62304</span><h4>Medical Device Software Lifecycle</h4><p>소프트웨어 안전 등급(A/B/C)과 생명주기 프로세스. SiMD 펌웨어 평가의 기준선.</p></div>
+      <div class="refcard"><span class="tag">AAMI TIR57</span><h4>Security Risk Management</h4><p>보안 위험을 안전 위험 관리(ISO 14971)와 연계. 발견 항목의 위해도 산정에 사용.</p></div>
+      <div class="refcard"><span class="tag">IEC 81001-5-1</span><h4>Health Software Security</h4><p>헬스 소프트웨어의 보안 활동을 생명주기 전반에 규정. 사후시장 포함.</p></div>
+      <div class="refcard"><span class="tag">OWASP</span><h4>ASVS · MASVS · API Top 10</h4><p>SaMD 웹·API·모바일 검증 체크리스트. 테스트 케이스 도출의 실무 기준.</p></div>
+      <div class="refcard"><span class="tag">MITRE</span><h4>Medical Device Rubric / ATT&CK</h4><p>위협 모델링과 공격 기법 분류. 절차 각 단계의 기법 매핑에 활용.</p></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>MedPen Methodology · 승인된 보안 평가 전용 · 환자 연결 장비 테스트 금지</span>
+    <span id="hostNote"></span>
+  </div>
+</footer>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script>
+/* ---------------- DATA ---------------- */
+// phase ids
+const PHASES = {
+  recon:   {n:1, t:"정찰 · OSINT"},
+  scan:    {n:2, t:"탐지 · 스캐닝"},
+  traffic: {n:3, t:"프로토콜 · 트래픽 분석"},
+  web:     {n:4, t:"웹 · API 테스트"},
+  wireless:{n:5, t:"무선 · BLE"},
+  firmware:{n:6, t:"펌웨어 · 임베디드"},
+  exploit: {n:7, t:"취약점 검증 · 익스플로잇"},
+  cred:    {n:8, t:"인증 · 암호"},
+  report:  {n:9, t:"리포팅 · 추적성"}
+};
+
+// tool catalog. inst=true means confirmed present on this host probe.
+const TOOLS = [
+  // recon
+  {id:"nmap",cat:"scan",ph:["scan","recon"],inst:true,desc:"포트·서비스·OS 탐지의 사실상 표준. NSE 스크립트로 취약점·프로토콜 핑거프린팅까지.",cmd:"nmap -sV -sC -p- --open 10.0.0.0/24",samd:"네트워크 연결 SaMD/SiMD의 노출 서비스와 의료 프로토콜 포트(DICOM 104, HL7 2575) 식별.",tags:["ip"]},
+  {id:"masscan",cat:"scan",ph:["scan"],inst:true,desc:"대규모 대역을 초고속으로 스캔하는 비동기 포트 스캐너.",cmd:"masscan 10.0.0.0/16 -p1-65535 --rate 1000",samd:"병원 네트워크 등 넓은 세그먼트에서 의료기기 자산을 신속 발견.",tags:["ip"]},
+  {id:"nuclei",cat:"scan",ph:["scan","web"],inst:true,desc:"템플릿 기반 취약점 스캐너. CVE·설정오류·노출을 YAML 규칙으로 탐지.",cmd:"nuclei -u https://app.target -severity high,critical",samd:"SaMD 웹/클라우드 자산의 알려진 취약점을 빠르게 트리아지.",tags:["ip","web"]},
+  {id:"openvas",cat:"scan",ph:["scan"],inst:true,desc:"종합 취약점 평가 스캐너(Greenbone). 인증 스캔·정책 점검.",cmd:"gvm-start   # 웹 UI 9392",samd:"사후시장 SaMD 인프라의 주기적 취약점 베이스라인.",tags:["ip"]},
+  {id:"theharvester",cat:"recon",ph:["recon"],inst:true,desc:"이메일·서브도메인·호스트 등 공개 출처 정보 수집(OSINT).",cmd:"theHarvester -d vendor.com -b all",samd:"제조사·클라우드 공급자 노출 자산과 담당자 식별.",tags:[]},
+  {id:"amass",cat:"recon",ph:["recon"],inst:true,desc:"심층 자산·서브도메인 매핑. 외부 공격표면 그래프화.",cmd:"amass enum -d vendor.com",samd:"SaMD 클라우드·API 엔드포인트의 외부 공격표면 전수화.",tags:[]},
+  {id:"spiderfoot",cat:"recon",ph:["recon"],inst:true,desc:"자동화 OSINT 수집·상관분석 플랫폼.",cmd:"spiderfoot -l 127.0.0.1:5001",samd:"벤더 생태계(노출 자격증명, 서드파티) 상관 분석.",tags:[]},
+  {id:"recon-ng",cat:"recon",ph:["recon"],inst:true,desc:"모듈형 웹 정찰 프레임워크.",cmd:"recon-ng -w samd",samd:"구조화된 정찰 워크플로로 자산 데이터 집계.",tags:[]},
+  {id:"dnsrecon",cat:"recon",ph:["recon"],inst:true,desc:"DNS 열거·영역전송·레코드 수집.",cmd:"dnsrecon -d vendor.com -a",samd:"API·업데이트 서버 등 숨은 호스트 발견.",tags:[]},
+  {id:"dnsenum",cat:"recon",ph:["recon"],inst:true,desc:"DNS 정보·서브도메인 브루트포스 수집.",cmd:"dnsenum vendor.com",samd:"SaMD 백엔드 명명 규칙에서 추가 자산 유추.",tags:[]},
+  {id:"fierce",cat:"recon",ph:["recon"],inst:true,desc:"DNS 정찰로 인접 네임스페이스 탐색.",cmd:"fierce --domain vendor.com",samd:"스테이징·개발 환경 등 비공개 엔드포인트 식별.",tags:[]},
+  {id:"whatweb",cat:"recon",ph:["recon","web"],inst:true,desc:"웹 기술 스택·프레임워크·버전 핑거프린팅.",cmd:"whatweb -a 3 https://app.target",samd:"SaMD 프런트엔드/서버 구성요소와 버전 식별.",tags:["web"]},
+  {id:"wafw00f",cat:"recon",ph:["recon","web"],inst:true,desc:"웹 방화벽(WAF) 존재·종류 탐지.",cmd:"wafw00f https://app.target",samd:"테스트 경로상의 보호 계층 파악으로 절차 조정.",tags:["web"]},
+  // traffic / protocol
+  {id:"wireshark",cat:"traffic",ph:["traffic"],inst:true,desc:"GUI 패킷 분석기. 프로토콜 디섹터로 심층 분석.",cmd:"wireshark &   # dicom/hl7 필터",samd:"DICOM·HL7·전용 프로토콜의 평문 전송·인증 결함 관찰.",tags:["ip","dicom","hl7","mqtt"]},
+  {id:"tshark",cat:"traffic",ph:["traffic"],inst:true,desc:"Wireshark의 CLI. 자동화·대용량 캡처에 적합.",cmd:"tshark -i eth0 -Y dicom -w cap.pcap",samd:"스크립트로 의료 프로토콜 세션을 추출·검증.",tags:["ip","dicom","hl7"]},
+  {id:"tcpdump",cat:"traffic",ph:["traffic"],inst:true,desc:"경량 패킷 캡처 도구. 장비·게이트웨이에서 사용.",cmd:"tcpdump -i eth0 port 104 -w dicom.pcap",samd:"대역폭이 제한된 임베디드 환경에서 트래픽 확보.",tags:["ip","dicom"]},
+  {id:"scapy",cat:"traffic",ph:["traffic","exploit","wireless"],inst:true,desc:"패킷 제작·조작·전송 파이썬 라이브러리. 프로토콜 퍼징 핵심.",cmd:"from scapy.all import *",samd:"전용/비공개 의료 프로토콜의 커스텀 퍼징·재전송 테스트.",tags:["ip","rf","prop","dicom"]},
+  {id:"ettercap",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"중간자(MITM) 공격·세션 가로채기 스위트 (dsniff/arpspoof 포함).",cmd:"arpspoof -t <dev> <gw>",samd:"격리 벤치에서 평문 프로토콜의 변조·가로채기 영향 입증.",tags:["ip"]},
+  {id:"mitmproxy",cat:"web",ph:["web","traffic"],inst:true,desc:"HTTP/S 가로채기 프록시. 스크립팅으로 트래픽 변조.",cmd:"mitmproxy --mode transparent",samd:"모바일 SaMD의 API 호출 가로채기·인증서 핀닝 검증.",tags:["web","mobile"]},
+  {id:"responder",cat:"traffic",ph:["traffic","cred"],inst:true,desc:"LLMNR/NBT-NS/mDNS 포이즈닝으로 자격증명 수집.",cmd:"responder -I eth0",samd:"병원 내부망 SaMD 서버의 인증 흐름 약점 검증(격리망).",tags:["ip"]},
+  {id:"snmpwalk",cat:"traffic",ph:["traffic","recon"],inst:true,desc:"SNMP로 장비 설정·자산 정보 열거.",cmd:"snmpwalk -v2c -c public <dev>",samd:"관리 인터페이스가 열린 의료기기 구성 노출 확인.",tags:["ip"]},
+  {id:"enum4linux",cat:"traffic",ph:["traffic","recon"],inst:true,desc:"SMB/Windows 공유·사용자·정책 열거.",cmd:"enum4linux -a <host>",samd:"Windows 기반 PACS/워크스테이션의 공유·계정 노출.",tags:["ip"]},
+  {id:"smbclient",cat:"traffic",ph:["traffic"],inst:true,desc:"SMB 공유 접근·파일 전송 클라이언트.",cmd:"smbclient -L //<host> -N",samd:"영상·리포트 공유의 익명 접근 가능성 확인.",tags:["ip"]},
+  // web
+  {id:"burpsuite",cat:"web",ph:["web"],inst:true,desc:"웹/API 테스트 통합 플랫폼. 프록시·스캐너·리피터·인트루더.",cmd:"burpsuite &",samd:"SaMD 웹/API의 인증·권한·입력검증 결함을 체계적으로 평가.",tags:["web","mobile"]},
+  {id:"sqlmap",cat:"web",ph:["web","exploit"],inst:true,desc:"SQL 인젝션 자동 탐지·추출.",cmd:"sqlmap -u 'https://app/api?id=1' --batch",samd:"PHI 저장 백엔드에 대한 인젝션으로 데이터 노출 위험 입증.",tags:["web","phi"]},
+  {id:"nikto",cat:"web",ph:["web","scan"],inst:true,desc:"웹 서버 설정오류·위험 파일 스캐너.",cmd:"nikto -h https://app.target",samd:"SaMD 서버의 노출 관리 페이지·구버전 식별.",tags:["web"]},
+  {id:"ffuf",cat:"web",ph:["web"],inst:true,desc:"초고속 웹 퍼저. 디렉터리·파라미터·vhost 탐색.",cmd:"ffuf -u https://app/FUZZ -w wordlist",samd:"숨은 API 엔드포인트·관리 경로 발견.",tags:["web"]},
+  {id:"gobuster",cat:"web",ph:["web"],inst:true,desc:"디렉터리·DNS·vhost 브루트포스.",cmd:"gobuster dir -u https://app -w list",samd:"문서화되지 않은 SaMD 리소스 열거.",tags:["web"]},
+  {id:"dirb",cat:"web",ph:["web"],inst:true,desc:"웹 콘텐츠 디렉터리 스캐너.",cmd:"dirb https://app.target",samd:"경량 디렉터리 탐색 대안.",tags:["web"]},
+  {id:"wpscan",cat:"web",ph:["web"],inst:true,desc:"WordPress 취약점·플러그인·사용자 스캐너.",cmd:"wpscan --url https://portal.target",samd:"환자 포털 등 CMS 기반 SaMD 자산 평가.",tags:["web"]},
+  {id:"sslscan",cat:"web",ph:["web","cred"],inst:true,desc:"TLS 구성·암호군·인증서 점검.",cmd:"sslscan app.target:443",samd:"PHI 전송 구간의 약한 TLS·만료 인증서 식별.",tags:["web","phi","ip"]},
+  {id:"sslyze",cat:"web",ph:["web","cred"],inst:true,desc:"정밀 TLS 분석기. 취약점·설정 자동 평가.",cmd:"sslyze app.target:443",samd:"전송 암호화 준수(FDA·HIPAA) 근거 자료 생성.",tags:["web","phi","ip"]},
+  // wireless / BLE
+  {id:"aircrack-ng",cat:"wireless",ph:["wireless"],inst:true,desc:"Wi-Fi 모니터링·캡처·WPA 핸드셰이크 크래킹 스위트.",cmd:"airodump-ng wlan0mon",samd:"Wi-Fi 연결 의료기기의 무선 보안·분리(segmentation) 검증.",tags:["ip"]},
+  {id:"kismet",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"무선 탐지·스니핑·디바이스 트래킹(Wi-Fi/BT/SDR).",cmd:"kismet -c wlan0mon",samd:"테스트 공간 내 미등록 무선 의료기기 발견.",tags:["ble","rf"]},
+  {id:"reaver",cat:"wireless",ph:["wireless"],inst:true,desc:"WPS 핀 브루트포스로 Wi-Fi 키 복구.",cmd:"reaver -i wlan0mon -b <bssid>",samd:"WPS가 켜진 기기 게이트웨이의 약점 입증.",tags:["ip"]},
+  {id:"bluetoothctl",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"BlueZ 제어 CLI. BLE 장치 스캔·페어링·연결.",cmd:"bluetoothctl scan on",samd:"BLE 웨어러블/이식형의 광고·페어링 보안 관찰.",tags:["ble"]},
+  {id:"gatttool",cat:"wireless",ph:["wireless","exploit"],inst:true,desc:"BLE GATT 서비스·특성 열거 및 읽기/쓰기.",cmd:"gatttool -b <MAC> -I",samd:"BLE 기기의 인증 없는 특성 쓰기(명령 주입) 검증.",tags:["ble"]},
+  {id:"hcitool",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"저수준 Bluetooth 조회·장치 탐색.",cmd:"hcitool lescan",samd:"BLE 기기 식별·MAC 수집(프라이버시·랜덤화 점검).",tags:["ble"]},
+  {id:"spooftooph",cat:"wireless",ph:["wireless","exploit"],inst:true,desc:"Bluetooth 장치 정보 스푸핑.",cmd:"spooftooph -i hci0 -a <MAC>",samd:"BLE 신뢰·페어링 모델의 위조 내성 평가.",tags:["ble"]},
+  // firmware / embedded
+  {id:"binwalk",cat:"firmware",ph:["firmware"],inst:true,desc:"펌웨어 이미지 분석·파일시스템 추출·엔트로피 분석.",cmd:"binwalk -eM firmware.bin",samd:"SiMD 펌웨어에서 파일시스템·하드코딩 비밀 추출.",tags:["usb","prop"]},
+  {id:"radare2",cat:"firmware",ph:["firmware","exploit"],inst:true,desc:"역공학 프레임워크. 디스어셈블·디버그·패치.",cmd:"r2 -A firmware.elf",samd:"펌웨어 바이너리의 로직·인증 우회 경로 분석.",tags:["usb","prop"]},
+  {id:"sasquatch",cat:"firmware",ph:["firmware"],inst:true,desc:"변형 SquashFS 추출 유틸(binwalk 보조).",cmd:"sasquatch rootfs.squashfs",samd:"비표준 압축 펌웨어 루트FS 복원.",tags:["usb"]},
+  {id:"flashrom",cat:"firmware",ph:["firmware"],inst:true,desc:"SPI/플래시 칩 읽기·쓰기(하드웨어 프로그래머 연동).",cmd:"flashrom -p <prog> -r dump.bin",samd:"물리 접근 시 SiMD 플래시에서 펌웨어 직접 덤프.",tags:["usb"]},
+  {id:"objdump",cat:"firmware",ph:["firmware"],inst:true,desc:"바이너리 디스어셈블·섹션 분석(binutils).",cmd:"objdump -d firmware.elf",samd:"임베디드 바이너리의 함수·심볼 신속 검토.",tags:["usb"]},
+  {id:"strings",cat:"firmware",ph:["firmware","recon"],inst:true,desc:"바이너리 내 출력가능 문자열 추출.",cmd:"strings -n 8 firmware.bin",samd:"펌웨어의 자격증명·엔드포인트·디버그 문자열 발견.",tags:["usb","prop"]},
+  // exploitation
+  {id:"metasploit",cat:"exploit",ph:["exploit"],inst:true,desc:"익스플로잇·페이로드·포스트 모듈 프레임워크(msfconsole).",cmd:"msfconsole -q",samd:"확인된 취약점의 영향(안전 영향 포함)을 통제된 PoC로 입증.",tags:["ip","web"]},
+  // credential / crypto
+  {id:"hydra",cat:"cred",ph:["cred"],inst:true,desc:"네트워크 로그인 브루트포스(SSH/HTTP/RDP 등).",cmd:"hydra -L u.txt -P p.txt ssh://<host>",samd:"관리 인터페이스의 약한·기본 자격증명 검증.",tags:["ip","web"]},
+  {id:"john",cat:"cred",ph:["cred"],inst:true,desc:"John the Ripper. 해시 크래킹·규칙 기반 공격.",cmd:"john --wordlist=rock.txt hashes",samd:"펌웨어/DB에서 추출한 해시의 강도 평가.",tags:[]},
+  {id:"hashcat",cat:"cred",ph:["cred"],inst:true,desc:"GPU 가속 해시 크래킹.",cmd:"hashcat -m 0 -a 0 hashes rock.txt",samd:"대량 해시·강한 알고리즘의 현실적 크래킹 비용 산정.",tags:[]},
+  // --- recommended (not confirmed on this host) ---
+  {id:"dcmtk",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"DICOM 툴킷(storescu/findscu/echoscu). DICOM 노드와 직접 통신.",cmd:"echoscu <host> 104   # C-ECHO 연결 확인",samd:"DICOM 서비스의 인증 부재·C-STORE 남용·정보 열거 테스트.",tags:["dicom","ip"]},
+  {id:"mosquitto",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"MQTT 브로커·클라이언트(pub/sub). IoT 메시징 테스트.",cmd:"mosquitto_sub -h <broker> -t '#' -v",samd:"원격 모니터링 SiMD의 MQTT 토픽 무단 구독·발행 검증.",tags:["mqtt","ip"]},
+  {id:"frida",cat:"exploit",ph:["exploit","web"],inst:true,desc:"동적 계측 툴킷. 런타임 후킹·인증서 핀닝 우회.",cmd:"frida-ps -U   # USB 기기 프로세스 목록",samd:"모바일 SaMD의 핀닝 우회·런타임 로직 분석.",tags:["mobile"]},
+  {id:"apktool",cat:"exploit",ph:["firmware","exploit"],inst:true,desc:"안드로이드 APK 디컴파일·리빌드.",cmd:"apktool d app.apk -o out/",samd:"모바일 SaMD의 리소스·스몰리 코드·비밀 정적 분석.",tags:["mobile"]},
+  {id:"jadx",cat:"firmware",ph:["firmware"],inst:true,desc:"Dalvik 바이트코드를 Java로 디컴파일.",cmd:"jadx -d out/ app.apk",samd:"모바일 SaMD 앱 로직·하드코딩 키 검토.",tags:["mobile"]},
+  {id:"ghidra",cat:"firmware",ph:["firmware","exploit"],inst:true,desc:"NSA 역공학 스위트. 멀티아키 디컴파일.",cmd:"ghidra &   # GUI 프로젝트 생성",samd:"SiMD 펌웨어의 심층 역공학·취약점 식별.",tags:["usb","prop"]},
+  {id:"can-utils",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"CAN 버스 송수신·덤프(candump/cansend).",cmd:"candump can0   # 버스 트래픽 관찰",samd:"CAN 기반 의료 플랫폼의 버스 메시지 관찰·주입.",tags:["prop","usb"]},
+  {id:"volatility3",cat:"exploit",ph:["exploit","report"],inst:true,desc:"메모리 포렌식 프레임워크(vol).",cmd:"vol -f dump.raw windows.info",samd:"사후시장 사고 대응·메모리 내 PHI 잔존 확인.",tags:["phi"]},
+  {id:"objection",cat:"exploit",ph:["exploit"],inst:true,desc:"Frida 기반 런타임 모바일 탐색·핀닝 우회 자동화.",cmd:"objection -g <pkg> explore",samd:"모바일 SaMD의 핀닝 우회·로컬 저장소·메서드 후킹 신속 점검.",tags:["mobile"]},
+  // ===== metapackage: SDR / RF (하드웨어) =====
+  {id:"gnuradio",cat:"hardware",ph:["wireless","traffic"],inst:true,chk:"gnuradio-config-info",desc:"SDR 신호처리 프레임워크. 전용 무선 프로토콜의 복조·디코딩 플로우 구성.",cmd:"gnuradio-companion &",samd:"전용 RF로 통신하는 SiMD(텔레메트리·이식형)의 변조 방식 역설계.",tags:["rf","prop"]},
+  {id:"gqrx",cat:"hardware",ph:["wireless","recon"],inst:true,chk:"gqrx",desc:"SDR 수신·스펙트럼 분석 GUI.",cmd:"gqrx &",samd:"의료기기의 RF 방출 대역·채널 식별(정찰).",tags:["rf"]},
+  {id:"hackrf",cat:"hardware",ph:["wireless"],inst:true,chk:"hackrf_info",desc:"1MHz–6GHz SDR 송수신 하드웨어 도구모음.",cmd:"hackrf_info   # 기기 연결 확인",samd:"격리 벤치에서 전용 RF 신호 캡처·재전송(replay) 내성 검증.",tags:["rf","prop"]},
+  {id:"multimon-ng",cat:"hardware",ph:["wireless","traffic"],inst:true,chk:"multimon-ng",desc:"POCSAG·FLEX 등 디지털 모드 디코더.",cmd:"multimon-ng -a POCSAG1200 -",samd:"병원 호출(pager) 등 평문 텔레메트리의 정보 노출 확인.",tags:["rf"]},
+  {id:"inspectrum",cat:"hardware",ph:["wireless"],inst:true,chk:"inspectrum",desc:"캡처된 신호의 시각적 분석·심볼 추출.",cmd:"inspectrum capture.cf32",samd:"전용 RF의 패킷 구조·타이밍 역설계.",tags:["rf","prop"]},
+  {id:"rfcat",cat:"hardware",ph:["wireless","exploit"],inst:true,chk:"rfcat",desc:"서브-GHz(ISM) RF 송수신 제어(TI 칩셋).",cmd:"rfcat -r",samd:"ISM 대역 전용 프로토콜의 명령 주입·재전송 테스트.",tags:["rf","prop"]},
+  // ===== metapackage: RFID =====
+  {id:"proxmark3",cat:"hardware",ph:["wireless","exploit"],inst:true,chk:"proxmark3",desc:"RFID/NFC 분석·복제·에뮬레이션 플랫폼.",cmd:"proxmark3 /dev/ttyACM0",samd:"RFID 기반 접근제어·이식형 식별 태그의 복제·변조 내성 검증.",tags:["rf","prop"]},
+  // ===== metapackage: hardware (JTAG/UART/emulation/RE) =====
+  {id:"openocd",cat:"hardware",ph:["firmware"],inst:true,chk:"openocd",desc:"JTAG/SWD 온칩 디버깅·플래시 접근.",cmd:"openocd -f board.cfg",samd:"SiMD의 디버그 포트를 통한 펌웨어 덤프·메모리 접근(보호 여부 검증).",tags:["usb"]},
+  {id:"minicom",cat:"hardware",ph:["firmware","traffic"],inst:true,chk:"minicom",desc:"시리얼 터미널. UART 콘솔 접근.",cmd:"minicom -D /dev/ttyUSB0 -b 115200",samd:"의료기기 UART 콘솔의 인증 없는 셸·부트로그 노출 확인.",tags:["usb"]},
+  {id:"qemu-user",cat:"hardware",ph:["firmware","exploit"],inst:true,chk:"qemu-arm",desc:"크로스아키 사용자모드 에뮬레이션(ARM/MIPS 등).",cmd:"qemu-arm ./fw-binary",samd:"추출한 SiMD 펌웨어 바이너리를 격리 환경에서 안전하게 실행·분석.",tags:["usb","prop"]},
+  {id:"cutter",cat:"firmware",ph:["firmware","exploit"],inst:true,chk:"cutter",desc:"Rizin 기반 역공학 GUI(rz-ghidra 디컴파일러 포함).",cmd:"cutter firmware.elf",samd:"Ghidra 대안으로 펌웨어 디컴파일·그래프 분석.",tags:["usb","prop"]},
+  // ===== metapackage: bluetooth (BLE) =====
+  {id:"ubertooth",cat:"wireless",ph:["wireless","traffic"],inst:true,chk:"ubertooth-util",desc:"BLE 패킷 스니핑 하드웨어 도구모음.",cmd:"ubertooth-util -v",samd:"앱-기기 간 BLE 트래픽 캡처로 평문·약한 페어링 식별.",tags:["ble"]},
+  {id:"crackle",cat:"wireless",ph:["wireless","cred"],inst:true,chk:"crackle",desc:"BLE 레거시 페어링(LE Legacy) 암호 크랙.",cmd:"crackle -i ble.pcap",samd:"BLE 웨어러블/이식형의 약한 페어링으로 인한 트래픽 복호화 입증.",tags:["ble"]},
+  {id:"btscanner",cat:"wireless",ph:["wireless","recon"],inst:true,chk:"btscanner",desc:"Bluetooth 장치 탐색·정보 수집.",cmd:"btscanner",samd:"테스트 공간의 BLE 의료기기 식별·정보 노출 점검.",tags:["ble"]},
+  // ===== metapackage: reverse-engineering (mobile) =====
+  {id:"dex2jar",cat:"firmware",ph:["firmware"],inst:true,chk:"d2j-dex2jar",desc:"Android dex를 jar로 변환(정적 분석용).",cmd:"d2j-dex2jar app.apk",samd:"모바일 SaMD를 jd-gui 등으로 Java 수준 검토하기 위한 전처리.",tags:["mobile"]},
+  {id:"jd-gui",cat:"firmware",ph:["firmware"],inst:true,chk:"jd-gui",desc:"Java 바이트코드 디컴파일 GUI.",cmd:"jd-gui app-dex2jar.jar",samd:"모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토.",tags:["mobile"]}
+];
+
+/* ---------------- CATALOG RENDER ---------------- */
+const CAT_LABELS = {recon:"정찰",scan:"스캐닝",traffic:"프로토콜",web:"웹·API",wireless:"무선·BLE",hardware:"하드웨어·RF",firmware:"펌웨어",exploit:"익스플로잇",cred:"인증·암호"};
+const catGrid=document.getElementById('catGrid');
+const searchIn=document.getElementById('searchIn');
+const catFilters=document.getElementById('catFilters');
+let activeCat="all";
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function renderCatalog(){
+  const q=(searchIn.value||"").toLowerCase().trim();
+  const items=TOOLS.filter(t=>{
+    const inCat=activeCat==="all"||t.cat===activeCat;
+    const hay=(t.id+" "+t.desc+" "+t.samd+" "+t.tags.join(" ")).toLowerCase();
+    return inCat && (!q||hay.includes(q));
+  });
+  if(!items.length){catGrid.innerHTML='<div class="nores">일치하는 툴이 없습니다.</div>';return;}
+  catGrid.innerHTML=items.map(t=>`
+    <div class="card" id="tool-${t.id}">
+      <div class="card-h">
+        <h4>${esc(t.id)}</h4>
+        <span class="cat-pill">${CAT_LABELS[t.cat]||t.cat}</span>
+        <span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'INSTALLED':'apt install'}</span>
+      </div>
+      <p class="desc">${esc(t.desc)}</p>
+      <pre class="cmd">${esc(t.cmd)}</pre>
+      <div class="samd"><b>SaMD/SiMD 적용</b>${esc(t.samd)}</div>
+    </div>`).join("");
+}
+function buildFilters(){
+  const cats=["all",...Object.keys(CAT_LABELS)];
+  catFilters.innerHTML=cats.map(c=>`<button class="chip" data-c="${c}" aria-pressed="${c==='all'}">${c==='all'?'전체':CAT_LABELS[c]}</button>`).join("");
+  catFilters.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+    activeCat=b.dataset.c;
+    catFilters.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    renderCatalog();
+  }));
+}
+searchIn.addEventListener('input',renderCatalog);
+
+/* ---------------- BUILDER ---------------- */
+const state={class:null,platform:new Set(),conn:new Set(),proto:new Set(),context:new Set()};
+const form=document.getElementById('form');
+const outEmpty=document.getElementById('outEmpty');
+const outBody=document.getElementById('outBody');
+
+form.querySelectorAll('.opts').forEach(grp=>{
+  const g=grp.dataset.group, single=grp.dataset.single;
+  grp.querySelectorAll('.chip').forEach(chip=>{
+    chip.setAttribute('aria-pressed','false');
+    chip.addEventListener('click',()=>{
+      const v=chip.dataset.v;
+      if(single){
+        const on=state[g]===v;
+        grp.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+        state[g]=on?null:v;
+        chip.setAttribute('aria-pressed',(!on).toString());
+      }else{
+        if(state[g].has(v)){state[g].delete(v);chip.setAttribute('aria-pressed','false');}
+        else{state[g].add(v);chip.setAttribute('aria-pressed','true');}
+      }
+      clearPresetSel();
+      renderPlan();
+    });
+  });
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  state.class=null;state.platform.clear();state.conn.clear();state.proto.clear();state.context.clear();
+  form.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  clearPresetSel();
+  renderPlan();
+});
+
+/* ---- device presets ---- */
+const PRESETS=[
+  {id:"pump",label:"인퓨전 펌프",hint:"SiMD · embedded",class:"simd",platform:["embedded"],conn:["ip","ble"],proto:["hl7"],context:["phi","physical"]},
+  {id:"cgm",label:"연속혈당측정 (CGM)",hint:"SiMD · wearable",class:"simd",platform:["wearable"],conn:["ble","rf"],proto:["prop"],context:["phi","physical"]},
+  {id:"implant",label:"이식형 기기",hint:"SiMD · implant",class:"simd",platform:["wearable"],conn:["ble","rf"],proto:["prop"],context:["phi","physical"]},
+  {id:"monitor",label:"환자 모니터",hint:"SiMD · embedded",class:"simd",platform:["embedded"],conn:["ip"],proto:["hl7"],context:["phi","physical"]},
+  {id:"pacs",label:"PACS·영상 뷰어",hint:"SaMD · web",class:"samd",platform:["web","desktop"],conn:["ip"],proto:["dicom"],context:["phi","internet"]},
+  {id:"mobile",label:"모바일 진단 앱",hint:"SaMD · mobile",class:"samd",platform:["mobile"],conn:["ip","cell"],proto:["hl7"],context:["phi","internet"]},
+  {id:"rpm",label:"원격 모니터링 허브",hint:"IoT · embedded",class:"simd",platform:["embedded"],conn:["ip","ble"],proto:["mqtt"],context:["phi","internet"]},
+  {id:"vent",label:"인공호흡기",hint:"SiMD · embedded",class:"simd",platform:["embedded"],conn:["ip"],proto:["hl7"],context:["phi","physical"]},
+  {id:"dialysis",label:"투석기",hint:"SiMD · embedded",class:"simd",platform:["embedded"],conn:["ip"],proto:["hl7"],context:["phi","physical"]},
+  {id:"robot",label:"수술로봇",hint:"SiMD · embedded",class:"simd",platform:["embedded"],conn:["ip"],proto:["prop"],context:["phi","physical"]},
+  {id:"ecg",label:"웨어러블 심전도",hint:"SiMD · wearable",class:"simd",platform:["wearable"],conn:["ble"],proto:["prop"],context:["phi","physical"]},
+  {id:"aidx",label:"AI 진단 클라우드",hint:"SaMD · web",class:"samd",platform:["web"],conn:["ip"],proto:["dicom","hl7"],context:["phi","internet"]}
+];
+let activePreset=null;
+let myPresets=[];
+const presetsEl=document.getElementById('presets');
+const myPresetsEl=document.getElementById('myPresets');
+
+function allPresets(){return PRESETS.concat(myPresets);}
+function highlightPreset(id){
+  document.querySelectorAll('#presets .preset,#myPresets .preset').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===id?'true':'false'));
+}
+function clearPresetSel(){activePreset=null;highlightPreset(null);}
+function syncUI(){
+  form.querySelectorAll('.opts').forEach(grp=>{
+    const g=grp.dataset.group;
+    grp.querySelectorAll('.chip').forEach(chip=>{
+      const v=chip.dataset.v;
+      const on=(g==='class')?state.class===v:state[g].has(v);
+      chip.setAttribute('aria-pressed',on?'true':'false');
+    });
+  });
+}
+function applyPreset(p){
+  if(!p)return;
+  state.class=p.class;
+  state.platform=new Set(p.platform);
+  state.conn=new Set(p.conn);
+  state.proto=new Set(p.proto);
+  state.context=new Set(p.context);
+  syncUI();
+  activePreset=p.id;highlightPreset(p.id);
+  renderPlan();
+}
+function renderPresets(){
+  presetsEl.innerHTML=PRESETS.map(p=>
+    `<button class="preset" type="button" data-id="${p.id}" aria-pressed="false"><b>${esc(p.label)}</b><span>${esc(p.hint)}</span></button>`
+  ).join("");
+  presetsEl.querySelectorAll('.preset').forEach(b=>{
+    b.addEventListener('click',()=>applyPreset(PRESETS.find(x=>x.id===b.dataset.id)));
+  });
+}
+/* ---- user presets (localStorage) ---- */
+function loadMyPresets(){try{myPresets=JSON.parse(localStorage.getItem('mp-presets')||'[]');if(!Array.isArray(myPresets))myPresets=[];}catch(e){myPresets=[];}}
+function persistMyPresets(){try{localStorage.setItem('mp-presets',JSON.stringify(myPresets));}catch(e){}}
+function renderMyPresets(){
+  if(!myPresets.length){myPresetsEl.innerHTML='<span class="empty-presets">저장된 프리셋이 없습니다. 아래에서 구성한 뒤 이름을 입력해 저장하세요.</span>';return;}
+  myPresetsEl.innerHTML=myPresets.map(p=>
+    `<button class="preset" type="button" data-id="${p.id}" aria-pressed="${activePreset===p.id}"><b>${esc(p.label)}</b><span>커스텀 · <span class="del" data-del="${p.id}" role="button" tabindex="0">삭제 ×</span></span></button>`
+  ).join("");
+  myPresetsEl.querySelectorAll('.preset').forEach(b=>{
+    b.addEventListener('click',e=>{
+      const del=e.target.getAttribute&&e.target.getAttribute('data-del');
+      if(del){
+        e.stopPropagation();
+        myPresets=myPresets.filter(x=>x.id!==del);persistMyPresets();
+        if(activePreset===del)clearPresetSel();
+        renderMyPresets();return;
+      }
+      applyPreset(myPresets.find(x=>x.id===b.dataset.id));
+    });
+  });
+}
+function saveCurrentAsPreset(){
+  const nameInput=document.getElementById('presetName');
+  const hint=document.getElementById('saveHint');
+  if(!state.class){hint.hidden=false;setTimeout(()=>{hint.hidden=true;},2500);return;}
+  const name=(nameInput.value||'').trim();
+  if(!name){nameInput.focus();nameInput.placeholder='이름을 입력하세요';return;}
+  myPresets.push({id:'u'+Date.now(),label:name,hint:'커스텀',
+    class:state.class,platform:[...state.platform],conn:[...state.conn],proto:[...state.proto],context:[...state.context]});
+  persistMyPresets();nameInput.value='';renderMyPresets();
+}
+
+function has(set,v){return state[set]instanceof Set?state[set].has(v):state[set]===v;}
+
+// decide which phases apply + why, given profile
+function plan(){
+  const p=[]; const S=state;
+  const add=(ph,why)=>p.push({ph,why});
+  // recon & scan: always relevant if any connectivity/platform networked
+  const networked=S.conn.has('ip')||S.conn.has('cell')||S.platform.has('web')||S.platform.has('mobile')||S.platform.has('desktop');
+  add('recon', S.class==='samd'?'외부 노출 자산·API·클라우드 공급자 매핑':'제조사·업데이트 인프라·공개 문서 수집');
+  if(networked) add('scan','네트워크 서비스·알려진 취약점 베이스라인');
+  // traffic / protocol
+  if(networked||S.proto.size||S.conn.has('ble')||S.conn.has('rf')||S.conn.has('usb'))
+    add('traffic', S.proto.size?'선택한 의료 프로토콜의 평문·인증·변조 내성 검증':'통신 경로의 기밀성·무결성 관찰');
+  // web/api
+  if(S.platform.has('web')||S.platform.has('mobile')||S.proto.has('hl7'))
+    add('web', S.platform.has('mobile')?'모바일 SaMD의 백엔드 API·세션·핀닝 평가':'웹/API 인증·권한·입력검증 평가');
+  // wireless
+  if(S.conn.has('ble')||S.conn.has('rf')||(S.conn.has('ip')&&(S.platform.has('wearable')||S.platform.has('embedded'))))
+    add('wireless', S.conn.has('ble')?'BLE 광고·페어링·GATT 특성 쓰기 권한 검증':'무선 채널의 접근제어·재전송 내성 검증');
+  // firmware
+  if(S.class==='simd'||S.platform.has('embedded')||S.platform.has('wearable')||S.conn.has('usb'))
+    add('firmware', S.class==='simd'?'펌웨어 추출·역공학으로 비밀·우회경로 식별':'바이너리 정적 분석으로 하드코딩 비밀 확인');
+  if(S.platform.has('mobile'))
+    add('firmware','모바일 앱 디컴파일(정적 분석)로 키·엔드포인트 검토');
+  // exploit (always, as controlled validation)
+  add('exploit', S.class==='simd'?'격리 벤치에서 통제된 PoC로 안전 영향 입증':'확인된 취약점의 실제 영향 입증');
+  // cred
+  if(networked||S.context.has('phi')||S.class==='simd')
+    add('cred', S.context.has('phi')?'인증 강도·전송 암호화(PHI 보호) 검증':'기본·약한 자격증명과 해시 강도 평가');
+  // report always
+  add('report','발견 항목을 TIR57 위해도·표준 요구사항에 매핑');
+  // de-dup firmware double (merge whys)
+  const merged={}; const order=[];
+  p.forEach(({ph,why})=>{ if(!merged[ph]){merged[ph]=why;order.push(ph);} else if(merged[ph]!==why) merged[ph]+=" · "+why; });
+  return order.map(ph=>({ph,why:merged[ph]}));
+}
+
+// pick tools for a phase given profile
+function toolsFor(ph){
+  const S=state;
+  const tagWanted=new Set([...S.conn,...S.proto,...S.platform,...S.context]);
+  return TOOLS.filter(t=>t.ph.includes(ph)).map(t=>{
+    let score=1;
+    t.tags.forEach(tag=>{if(tagWanted.has(tag))score+=3;});
+    // platform-specific nudges
+    if(ph==='firmware'&&S.platform.has('mobile')&&['apktool','jadx','frida'].includes(t.id))score+=4;
+    if(ph==='firmware'&&(S.class==='simd')&&['binwalk','radare2','ghidra','flashrom','strings'].includes(t.id))score+=3;
+    if(ph==='traffic'&&S.proto.has('dicom')&&['dcmtk','wireshark','tshark'].includes(t.id))score+=4;
+    if(ph==='traffic'&&S.proto.has('mqtt')&&t.id==='mosquitto')score+=5;
+    if(ph==='web'&&t.id==='burpsuite')score+=2;
+    return {t,score};
+  }).filter(x=>x.score>1||['recon','scan','exploit','report','cred'].includes(ph))
+    .sort((a,b)=> b.score-a.score || (a.t.inst===b.t.inst?0:a.t.inst?-1:1))
+    .slice(0, ph==='report'?3:5)
+    .map(x=>x.t);
+}
+
+const PROFILE_LABELS={
+  class:{samd:"SaMD",simd:"SiMD"},
+  platform:{web:"웹·클라우드",mobile:"모바일",desktop:"데스크톱",embedded:"임베디드",wearable:"웨어러블"},
+  conn:{ip:"IP",ble:"BLE",rf:"RF",usb:"USB",cell:"셀룰러"},
+  proto:{dicom:"DICOM",hl7:"HL7/FHIR",mqtt:"MQTT",prop:"전용"},
+  context:{internet:"인터넷노출",phi:"PHI",physical:"물리접근"}
+};
+function profileTags(){
+  const out=[];
+  if(state.class)out.push(`<span class="ptag">분류 <b>${PROFILE_LABELS.class[state.class]}</b></span>`);
+  ['platform','conn','proto','context'].forEach(g=>{
+    state[g].forEach(v=>out.push(`<span class="ptag">${PROFILE_LABELS[g][v]}</span>`));
+  });
+  return out.join("");
+}
+
+function renderPlan(){
+  const head=document.getElementById('outHead');
+  if(!state.class){outEmpty.hidden=false;outBody.hidden=true;head.hidden=true;return;}
+  outEmpty.hidden=true;outBody.hidden=false;head.hidden=false;
+  const steps=plan();
+  let html=`<div class="profile-tags">${profileTags()}</div>`;
+  steps.forEach(({ph,why})=>{
+    const meta=PHASES[ph];
+    const tools=toolsFor(ph);
+    html+=`<div class="phase">
+      <div class="phase-h"><span class="pn">${meta.n}</span><h4>${meta.t}</h4><span class="pwhy">${esc(why)}</span></div>
+      <div class="phase-body">`;
+    if(ph==='report'){
+      html+=`<div class="toolline"><span class="tn">추적성</span><span class="td">각 발견 항목을 CVSS + AAMI TIR57 안전 위해도로 이중 평가하고, FDA/IEC 62304 요구사항 ID에 매핑합니다. SBOM 대조로 알려진 취약 구성요소를 식별합니다.</span></div>`;
+    }
+    tools.forEach(t=>{
+      html+=`<div class="toolline">
+        <span class="tn"><a href="#tool-${t.id}">${esc(t.id)}</a> <span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'✓':'+'}</span></span>
+        <span class="td">${esc(t.samd)}<code class="cmd mono">${esc(t.cmd.split("\n")[0])}</code></span>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  // safety note tailored
+  if(state.class==='simd'||state.platform.has('wearable')){
+    html+=`<div class="note-line"><b>안전 주의:</b> SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하, 에뮬레이터)에서만 수행합니다. 액추에이터·용량 제어 경로에 대한 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치가 전제됩니다.</div>`;
+  } else if(state.context.has('phi')){
+    html+=`<div class="note-line"><b>데이터 주의:</b> PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기합니다.</div>`;
+  }
+  outBody.innerHTML=html;
+}
+
+/* ---------------- EXPORT (평가 계획서) ---------------- */
+function profileLine(){
+  const parts=[];
+  ['platform','conn','proto','context'].forEach(g=>{state[g].forEach(v=>parts.push(PROFILE_LABELS[g][v]));});
+  return parts.join(' · ')||'—';
+}
+/* --- PDF 생성 (브라우저 인쇄 → PDF 저장; 한글 폰트 임베드 불필요, 텍스트 선택 가능) --- */
+function htmlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function buildPlanHtmlDoc(){
+  const date=new Date().toISOString().slice(0,10);
+  const cls=PROFILE_LABELS.class[state.class]||'—';
+  const preset=activePreset?(PRESETS.find(p=>p.id===activePreset)||{}).label:null;
+  const fname=`평가계획서_${cls}_${date}`;
+  let b='';
+  b+=`<h1>SaMD/SiMD 침투 테스트 평가 계획서</h1>`;
+  b+=`<table class="meta"><tr><th>생성일</th><td>${date}</td></tr>`+
+     `<tr><th>기기 분류</th><td>${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</td></tr>`+
+     `<tr><th>프로파일</th><td>${htmlEsc(profileLine())}</td></tr>`+
+     `<tr><th>생성 도구</th><td>MedPen Methodology</td></tr></table>`;
+  b+=`<h2>1. 승인 및 범위 (Rules of Engagement)</h2>`;
+  b+=`<p>본 평가는 서면 권한이 확보된 자산(자체 기기·격리 테스트베드·계약된 평가)에 한해 수행한다. 실제 사용 중이거나 환자에게 연결된 장비에 대한 테스트는 환자 안전에 직접적 위험을 주므로 금지한다. 모든 활동은 사전 합의된 범위·시간·방법을 준수하며, 안전 영향이 있는 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
+  b+=`<h2>2. 테스트 절차</h2>`;
+  plan().forEach(({ph,why})=>{
+    const meta=PHASES[ph];
+    b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">목적: ${htmlEsc(why)}</p><ul>`;
+    if(ph==='report'){
+      b+=`<li>각 발견 항목을 CVSS + AAMI TIR57 안전 위해도로 이중 평가</li>`;
+      b+=`<li>FDA / IEC 62304 요구사항 ID에 매핑하고 SBOM 대조로 취약 구성요소 식별</li>`;
+    }
+    toolsFor(ph).forEach(t=>{
+      b+=`<li><b>${htmlEsc(t.id)}</b> <span class="badge">${t.inst?'설치됨':'설치 필요'}</span> — ${htmlEsc(t.samd)}<br><code>${htmlEsc(t.cmd.split('\n')[0])}</code></li>`;
+    });
+    b+=`</ul>`;
+  });
+  b+=`<h2>3. 표준 매핑</h2><ul>`+[
+    'FDA Premarket Cybersecurity Guidance (2023): SBOM·위협모델링·침투테스트 증거',
+    'IEC 62304: 소프트웨어 안전등급(A/B/C)·생명주기 프로세스',
+    'AAMI TIR57 / ISO 14971: 보안 위험과 안전 위험 연계',
+    'IEC 81001-5-1: 헬스 소프트웨어 보안 활동(사후시장 포함)',
+    'OWASP ASVS / MASVS / API Top 10: 검증 체크리스트',
+    'MITRE ATT&CK / Medical Device Rubric: 공격 기법 매핑'
+  ].map(s=>`<li>${htmlEsc(s)}</li>`).join('')+`</ul>`;
+  if(state.class==='simd'||state.platform.has('wearable')){
+    b+=`<h2 class="warn">4. 안전 주의</h2><p class="warnbox">SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하·에뮬레이터)에서만 수행한다. 액추에이터·용량 제어 경로의 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 한다.</p>`;
+  }else if(state.context.has('phi')){
+    b+=`<h2 class="warn">4. 데이터 주의</h2><p class="warnbox">PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</p>`;
+  }
+  b+=`<footer>MedPen Methodology · 승인된 보안 평가 전용 · ${date}</footer>`;
+  const css=`@page{size:A4;margin:18mm}
+*{box-sizing:border-box}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR','Nanum Gothic',system-ui,sans-serif;color:#1a1a1a;font-size:11pt;line-height:1.5;margin:0}
+h1{font-size:19pt;margin:0 0 6pt;color:#0a3d44;border-bottom:2pt solid #0c7d8c;padding-bottom:6pt}
+h2{font-size:13pt;margin:16pt 0 6pt;color:#0c7d8c;border-bottom:0.5pt solid #cdd7db;padding-bottom:3pt}
+h2.warn{color:#b03028;border-bottom-color:#e5c3bf}
+h3{font-size:11.5pt;margin:11pt 0 3pt;color:#17323a;page-break-after:avoid}
+p{margin:0 0 6pt}
+p.why{color:#555;margin:0 0 4pt}
+table.meta{border-collapse:collapse;margin:6pt 0;font-size:10pt}
+table.meta th{text-align:left;color:#666;font-weight:600;padding:2pt 14pt 2pt 0;vertical-align:top;white-space:nowrap}
+table.meta td{padding:2pt 0}
+ul{margin:0 0 8pt;padding-left:16pt}
+li{margin:0 0 5pt;page-break-inside:avoid}
+code{font-family:Consolas,'D2Coding','Courier New',monospace;background:#f1f3f4;color:#0a3d44;padding:1pt 4pt;border-radius:3px;font-size:9.5pt}
+.badge{font-size:8pt;background:#e3eef0;color:#0c7d8c;border:0.5pt solid #bcd4d8;border-radius:3px;padding:0 4pt}
+.warnbox{background:#fbeceb;border-left:3pt solid #c0392b;padding:8pt 10pt;color:#7a241d;margin:0 0 6pt}
+footer{margin-top:16pt;padding-top:8pt;border-top:0.5pt solid #ddd;color:#999;font-size:8.5pt}`;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${htmlEsc(fname)}</title><style>${css}</style></head><body>${b}</body></html>`;
+}
+function downloadPdf(){
+  const old=document.getElementById('pdfFrame');if(old)old.remove();
+  const f=document.createElement('iframe');f.id='pdfFrame';
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  f.onload=function(){try{f.contentWindow.focus();f.contentWindow.print();}catch(e){}setTimeout(function(){f.remove();},1500);};
+  document.body.appendChild(f);
+  const d=f.contentWindow.document;d.open();d.write(buildPlanHtmlDoc());d.close();
+}
+document.getElementById('copyPlanBtn').addEventListener('click',()=>{
+  const btn=document.getElementById('copyPlanBtn');
+  try{
+    downloadPdf();
+    const o=btn.textContent;btn.textContent='✓ 인쇄 대화상자 열림';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent=o;btn.classList.remove('done');},2200);
+  }catch(e){btn.textContent='오류: '+e.message;}
+});
+
+/* ---------------- INIT ---------------- */
+document.getElementById('stInstalled').textContent=TOOLS.filter(t=>t.inst).length;
+document.getElementById('stTotal').textContent=TOOLS.length;
+document.getElementById('hostNote').textContent="Kali Rolling · top10 + RE·hardware·SDR·RFID·bluetooth·wireless";
+loadMyPresets();renderPresets();renderMyPresets();buildFilters();renderCatalog();renderPlan();
+document.getElementById('savePresetBtn').addEventListener('click',saveCurrentAsPreset);
+document.getElementById('presetName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveCurrentAsPreset();}});
+
+// theme toggle
+const tb=document.getElementById('themeBtn');
+let theme=null;
+try{theme=localStorage.getItem('mp-theme');}catch(e){}
+if(theme)document.documentElement.setAttribute('data-theme',theme);
+tb.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const sysDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const next=(cur==='dark'||(!cur&&sysDark))?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('mp-theme',next);}catch(e){}
+});
+</script>
+
+</body>
+</html>
