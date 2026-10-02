@@ -771,10 +771,18 @@ function toolsFor(ph){
     if(ph==='traffic'&&S.proto.has('dicom')&&['dcmtk','wireshark','tshark'].includes(t.id))score+=4;
     if(ph==='traffic'&&S.proto.has('mqtt')&&t.id==='mosquitto')score+=5;
     if(ph==='web'&&t.id==='burpsuite')score+=2;
+    // weighting so core + newly added tools surface for matching profiles
+    if(ph==='wireless'&&S.conn.has('ble')){
+      if(['ubertooth','gatttool','crackle','btscanner','bluetoothctl','hcitool','spooftooph','blue-hydra','bluesnarfer','redfang'].includes(t.id))score+=3;
+      if(['blue-hydra','bluesnarfer','redfang'].includes(t.id))score+=3; // new BLE attack tools
+    }
+    if(ph==='firmware'&&(S.class==='simd'||S.conn.has('usb'))&&['rizin','edb-debugger'].includes(t.id))score+=4;
+    if(ph==='cred'&&(S.platform.has('web')||S.platform.has('desktop')||S.proto.has('dicom')||S.class==='simd')&&t.id==='netexec')score+=4;
+    if(ph==='wireless'&&S.conn.has('ip')&&t.id==='hostapd-wpe')score+=3;
     return {t,score};
   }).filter(x=>x.score>1||['recon','scan','exploit','report','cred'].includes(ph))
     .sort((a,b)=> b.score-a.score || (a.t.inst===b.t.inst?0:a.t.inst?-1:1))
-    .slice(0, ph==='report'?3:5)
+    .slice(0, ph==='report'?3:7)
     .map(x=>x.t);
 }
 
