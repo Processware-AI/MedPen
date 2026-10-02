@@ -6,9 +6,9 @@
 <title>툴 상세 — MedPen</title>
 <style>
 :root{
-  --bg:#f3f5f7; --surface:#ffffff; --surface-2:#eef1f4; --line:#d8dde3;
-  --fg:#17202a; --muted:#5a6775; --faint:#8793a0;
-  --accent:#0c7d8c; --accent-weak:#d4ebee; --accent-ink:#065059;
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f1f4f7; --line:#dde3e9;
+  --fg:#141b22; --muted:#566573; --faint:#8a97a4;
+  --accent:#0b7c8b; --accent-weak:#d9edf0; --accent-ink:#064e57;
   --ok:#2f8f4e; --warn:#b5730b; --info:#2d6fb3;
   --code-bg:#0f1b22; --code-fg:#cfe6ea; --r:10px; --r-sm:6px;
   --f-head:"Archivo","Segoe UI",system-ui,sans-serif;
@@ -16,23 +16,23 @@
   --f-mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
-  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
-  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-weak:#10323a; --accent-ink:#8fe3ec;
   --ok:#4bbf6e; --warn:#e0a030; --info:#5a9fe0;
-  --code-bg:#0a1217; --code-fg:#cfe6ea; color-scheme:dark;
+  --code-bg:#070d12; --code-fg:#cfe6ea; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
-  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
-  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-weak:#10323a; --accent-ink:#8fe3ec;
   --ok:#4bbf6e; --warn:#e0a030; --info:#5a9fe0;
-  --code-bg:#0a1217; --code-fg:#cfe6ea; color-scheme:dark;
+  --code-bg:#070d12; --code-fg:#cfe6ea; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--f-head);line-height:1.2;margin:0}
+h1,h2,h3{font-family:var(--f-head);line-height:1.2;margin:0;word-break:keep-all}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
