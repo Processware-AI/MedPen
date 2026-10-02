@@ -208,7 +208,10 @@ section.band{padding-block:38px;scroll-margin-top:72px}
 /* export */
 .out-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .out-head h3{font-size:1rem;font-weight:700}
+.out-actions{display:flex;gap:7px;flex-wrap:wrap}
 .copybtn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer;font-size:.82rem;font-weight:600;font-family:var(--f-body);white-space:nowrap}
+.copybtn.alt{background:var(--surface);color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.copybtn.alt:hover{border-color:var(--accent)}
 .copybtn:hover{background:var(--accent-ink)}
 .copybtn.done{background:var(--ok);border-color:var(--ok)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
@@ -358,7 +361,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <div class="panel" id="output" aria-live="polite">
         <div class="out-head" id="outHead" hidden>
           <h3>생성된 테스트 절차</h3>
-          <button class="copybtn" id="copyPlanBtn" type="button">📝 평가 계획서 생성</button>
+          <div class="out-actions">
+            <button class="copybtn" id="copyPlanBtn" type="button">📝 평가 계획서</button>
+            <button class="copybtn alt" id="resultBtn" type="button">📋 결과서 템플릿</button>
+          </div>
         </div>
         <div class="out-empty" id="outEmpty">왼쪽에서 <b>기기 분류</b>를 먼저 선택하거나, 위 <b>기기 프리셋</b>을 누르면 맞춤 절차가 생성됩니다.</div>
         <div id="outBody" hidden></div>
@@ -965,10 +971,121 @@ function buildReportBody(){
   b+=`<p class="sig">작성자: ____________________    검토자: ____________________    일자: ${date}</p>`;
   return b;
 }
+
+/* --- 평가 결과서 템플릿: 계획서 구조에 따라 작성란 중심으로 생성 --- */
+function resultTitle(){
+  const date=new Date().toISOString().slice(0,10);
+  const cls=PROFILE_LABELS.class[state.class]||'result';
+  return `평가결과서_${cls}_${date}`;
+}
+function buildResultBody(){
+  const date=new Date().toISOString().slice(0,10);
+  const cls=PROFILE_LABELS.class[state.class]||'—';
+  const preset=activePreset?(PRESETS.find(p=>p.id===activePreset)||{}).label:null;
+  const DET=window.MEDPEN_DETAIL||{};
+  const isSiMD=state.class==='simd';
+  const F='☐'; // fill-in checkbox
+  let b='';
+  b+=`<h1>SaMD/SiMD 침투 테스트 평가 결과서</h1>`;
+  b+=`<p class="meta">대상: ${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''} &nbsp;|&nbsp; 프로파일: ${htmlEsc(profileLine())}</p>`;
+  b+=`<p class="meta">평가 기간: ____ ~ ____ &nbsp;|&nbsp; 평가자: ________ &nbsp;|&nbsp; 버전: 1.0 &nbsp;|&nbsp; 작성일: ${date}</p>`;
+  b+=`<div class="callout note"><span class="ct">작성 안내</span>이 문서는 <b>평가계획서에 따른 결과서 템플릿</b>입니다. 각 작성란(____, ${F})과 [예시] 행을 실제 수행 결과·발견으로 교체하세요. 모든 결과는 승인된 격리 환경·합성 데이터 기준입니다.</div>`;
+
+  b+=`<h2>1. 개요 (Executive Summary)</h2>`;
+  b+=`<p>평가 목적·대상·주요 결론을 2~3문장으로 요약합니다. (작성) ____</p>`;
+  b+=`<h3>발견 통계</h3>`;
+  b+=`<table><thead><tr><th>심각도</th><th>치명</th><th>높음</th><th>중간</th><th>낮음</th><th>관찰</th><th>합계</th></tr></thead>`+
+     `<tbody><tr><th>건수</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>`;
+  b+=`<p>종합 의견: ${F} 적합 &nbsp; ${F} 조건부 적합(완화 필요) &nbsp; ${F} 부적합 — 사유: ____</p>`;
+
+  b+=`<h2>2. 평가 범위 · 방법</h2>`;
+  b+=`<p>평가계획서(동일 프로파일)에 따라 수행하였으며, 범위·방법은 아래 프로파일과 같다.</p>`;
+  b+=`<table><tbody>`+
+     `<tr><th>기기 분류</th><td>${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</td></tr>`+
+     `<tr><th>플랫폼</th><td>${htmlEsc(listify('platform'))}</td></tr>`+
+     `<tr><th>연결성</th><td>${htmlEsc(listify('conn'))}</td></tr>`+
+     `<tr><th>의료 프로토콜</th><td>${htmlEsc(listify('proto'))}</td></tr>`+
+     `<tr><th>노출 · 데이터</th><td>${htmlEsc(listify('context'))}</td></tr>`+
+     `<tr><th>테스트 환경</th><td>격리 테스트베드 (공격자/타깃/시뮬레이터/관리 VLAN), 합성 데이터</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>3. 발견 항목 등록부 (Findings Register)</h2>`;
+  b+=`<p>발견별로 한 행씩 작성합니다. 심각도는 CVSS와 안전 영향(AAMI TIR57)을 함께 고려합니다.</p>`;
+  b+=`<table><thead><tr><th>ID</th><th>제목</th><th>단계</th><th>심각도</th><th>CVSS</th><th>상태</th><th>권고 요지</th></tr></thead><tbody>`+
+     `<tr><td>F-001</td><td>[예시] DICOM 서비스 비인증 접근</td><td>프로토콜</td><td>높음</td><td>7.5</td><td>미조치</td><td>노드 인증·TLS·망분리</td></tr>`+
+     `<tr><td>F-002</td><td>[예시, 교체]</td><td>____</td><td>____</td><td>____</td><td>____</td><td>____</td></tr>`+
+     `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`+
+     `</tbody></table>`;
+  b+=`<h3>발견 상세 (항목별 작성)</h3>`;
+  b+=`<div class="tool-step"><div class="ts-head"><code>F-001</code> <span class="ts-badge">[예시 양식]</span></div><div class="ts-body">`+
+     `<p class="lbl">영향</p><p>____ (기밀성/무결성/가용성 및 환자 안전 관점)</p>`+
+     `<p class="lbl">재현 절차</p><p>____ (제3자가 재현 가능하게 단계별로)</p>`+
+     `<p class="lbl">증거</p><p>____ (명령 출력·pcap·스크린샷, 합성 데이터)</p>`+
+     `<p class="lbl">위해도</p><p>CVSS ____ / 안전 영향 ____ → 종합 ____</p>`+
+     `<p class="lbl">권고</p><p>____ (완화책 + 관련 표준 요구사항 ID)</p>`+
+     `</div></div>`;
+
+  b+=`<h2>4. 단계별 수행 결과</h2>`;
+  b+=`<p>계획된 각 단계·툴의 수행 여부와 결과를 기록합니다. (${F}=수행, 결과·발견은 작성란에 입력)</p>`;
+  plan().forEach(({ph,why})=>{
+    const meta=PHASES[ph];
+    if(ph==='report'){
+      b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">${htmlEsc(why)} — 본 결과서 작성으로 수행.</p>`;
+      return;
+    }
+    b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">목적: ${htmlEsc(why)}</p>`;
+    b+=`<table><thead><tr><th>툴</th><th>수행</th><th>계획된 실행 예</th><th>결과 요약 (작성)</th><th>발견 ID</th></tr></thead><tbody>`;
+    toolsFor(ph).forEach(t=>{
+      b+=`<tr><td><b>${htmlEsc(t.id)}</b></td><td>${F}</td><td><code>${htmlEsc(t.cmd.split('\n')[0])}</code></td><td>____</td><td>____</td></tr>`;
+    });
+    b+=`</tbody></table>`;
+  });
+
+  b+=`<h2>5. 표준 · 규제 준수 매핑</h2>`;
+  b+=`<p>각 요구사항의 충족 여부와 근거(발견 ID·증거)를 기록합니다.</p>`;
+  b+=`<table><thead><tr><th>표준 / 규제</th><th>해당 활동</th><th>충족 여부</th><th>근거 (작성)</th></tr></thead><tbody>`+[
+    ['FDA Premarket Cybersecurity (2023)','SBOM·위협모델링·테스트 증거'],
+    ['IEC 62304','안전등급별 테스트 깊이'],
+    ['ISO 14971 · AAMI TIR57','위해도 산정(보안-안전 연계)'],
+    ['IEC 81001-5-1','생명주기 보안 활동'],
+    ['IEC 62443 · 80001-1','테스트베드 분리·네트워크 위험관리'],
+    ['OWASP ASVS / API Top 10 / MASVS','웹·API·모바일 검증'],
+    ['HIPAA / EU MDR·IVDR / MFDS','PHI 보호·규제 준수']
+  ].map(r=>`<tr><th>${htmlEsc(r[0])}</th><td>${htmlEsc(r[1])}</td><td>${F} 충족 ${F} 부분 ${F} 미흡 ${F} 해당없음</td><td>____</td></tr>`).join('')+`</tbody></table>`;
+
+  b+=`<h2>6. 위해도 매트릭스 (참조)</h2>`;
+  b+=`<table><thead><tr><th>안전 영향 \\ 보안 심각도</th><th>낮음</th><th>중간</th><th>높음</th><th>치명</th></tr></thead><tbody>`+
+     `<tr><th>경미</th><td>관찰</td><td>낮음</td><td>중간</td><td>높음</td></tr>`+
+     `<tr><th>중대</th><td>낮음</td><td>중간</td><td>높음</td><td>치명</td></tr>`+
+     `<tr><th>심각</th><td>중간</td><td>높음</td><td>치명</td><td>치명</td></tr>`+
+     `<tr><th>생명 위협</th><td>높음</td><td>치명</td><td>치명</td><td>치명</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>7. 결론 및 권고</h2>`;
+  b+=`<p>종합 결론과 우선순위별 권고를 작성합니다. (작성) ____</p>`;
+  if(isSiMD||state.platform.has('wearable')){
+    b+=`<div class="callout warn"><span class="ct">안전 주의</span>SiMD/이식형 결과 해석 시 환자 안전 영향을 최우선으로 고려하고, 조치 전까지의 보완 통제를 명시한다.</div>`;
+  }
+  b+=`<h2>8. 승인</h2>`;
+  b+=`<p class="sig">평가자: ______________ (서명/일자)  &nbsp; 검토자: ______________  &nbsp; 승인자: ______________</p>`;
+  return b;
+}
 document.getElementById('copyPlanBtn').addEventListener('click',()=>{
   const btn=document.getElementById('copyPlanBtn');
   try{
     const body=buildReportBody(), title=reportTitle();
+    try{localStorage.setItem('mp-report',body);localStorage.setItem('mp-report-title',title);}catch(e){}
+    try{window.MP_REPORT={body:body,title:title};}catch(e){}
+    const w=window.open('report.html','_blank');
+    if(!w){ location.href='report.html'; }
+    const o=btn.textContent;btn.textContent='✓ 편집 페이지 열림';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent=o;btn.classList.remove('done');},2200);
+  }catch(e){btn.textContent='오류: '+e.message;}
+});
+document.getElementById('resultBtn').addEventListener('click',()=>{
+  const btn=document.getElementById('resultBtn');
+  try{
+    const body=buildResultBody(), title=resultTitle();
     try{localStorage.setItem('mp-report',body);localStorage.setItem('mp-report-title',title);}catch(e){}
     try{window.MP_REPORT={body:body,title:title};}catch(e){}
     const w=window.open('report.html','_blank');
