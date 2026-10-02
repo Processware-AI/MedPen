@@ -982,78 +982,120 @@ function buildResultBody(){
   const date=new Date().toISOString().slice(0,10);
   const cls=PROFILE_LABELS.class[state.class]||'—';
   const preset=activePreset?(PRESETS.find(p=>p.id===activePreset)||{}).label:null;
-  const DET=window.MEDPEN_DETAIL||{};
   const isSiMD=state.class==='simd';
-  const F='☐'; // fill-in checkbox
+  const F='☐';
+  const blank='____';
   let b='';
-  b+=`<h1>SaMD/SiMD 침투 테스트 평가 결과서</h1>`;
+  b+=`<h1>SaMD/SiMD 사이버보안 평가 결과서 — FDA 제출 패키지 템플릿</h1>`;
   b+=`<p class="meta">대상: ${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''} &nbsp;|&nbsp; 프로파일: ${htmlEsc(profileLine())}</p>`;
-  b+=`<p class="meta">평가 기간: ____ ~ ____ &nbsp;|&nbsp; 평가자: ________ &nbsp;|&nbsp; 버전: 1.0 &nbsp;|&nbsp; 작성일: ${date}</p>`;
-  b+=`<div class="callout note"><span class="ct">작성 안내</span>이 문서는 <b>평가계획서에 따른 결과서 템플릿</b>입니다. 각 작성란(____, ${F})과 [예시] 행을 실제 수행 결과·발견으로 교체하세요. 모든 결과는 승인된 격리 환경·합성 데이터 기준입니다.</div>`;
+  b+=`<p class="meta">평가 기간: ${blank} ~ ${blank} &nbsp;|&nbsp; 평가자: ${blank} &nbsp;|&nbsp; 버전: 1.0 &nbsp;|&nbsp; 작성일: ${date}</p>`;
+  b+=`<div class="callout warn"><span class="ct">작성 안내 — 이것은 템플릿입니다</span>본 문서는 FDA 시판 전 사이버보안 제출(FD&C Act §524B · 2023 가이드 "Cybersecurity in Medical Devices")의 요소를 반영한 <b>작성 틀</b>이다. 각 ${blank}·${F}·[예시]를 실제 기기 대상의 수행 결과·근거로 교체해야 제출 등급이 된다. 모든 결과는 승인된 격리 환경·합성 데이터 기준이며, 설계관리(21 CFR 820 / ISO 13485) 체계 안에서 작성한다.</div>`;
 
   b+=`<h2>1. 개요 (Executive Summary)</h2>`;
-  b+=`<p>평가 목적·대상·주요 결론을 2~3문장으로 요약합니다. (작성) ____</p>`;
-  b+=`<h3>발견 통계</h3>`;
+  b+=`<p>평가 목적·대상·주요 결론을 요약한다. (작성) ${blank}</p>`;
   b+=`<table><thead><tr><th>심각도</th><th>치명</th><th>높음</th><th>중간</th><th>낮음</th><th>관찰</th><th>합계</th></tr></thead>`+
      `<tbody><tr><th>건수</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>`;
-  b+=`<p>종합 의견: ${F} 적합 &nbsp; ${F} 조건부 적합(완화 필요) &nbsp; ${F} 부적합 — 사유: ____</p>`;
+  b+=`<p>종합 의견: ${F} 적합 &nbsp; ${F} 조건부 적합(완화 필요) &nbsp; ${F} 부적합 — 사유: ${blank}</p>`;
 
-  b+=`<h2>2. 평가 범위 · 방법</h2>`;
-  b+=`<p>평가계획서(동일 프로파일)에 따라 수행하였으며, 범위·방법은 아래 프로파일과 같다.</p>`;
+  b+=`<h2>2. 기기 설명 · 평가 범위</h2>`;
+  b+=`<p>의도된 사용(intended use)·사용 환경·주요 기능: (작성) ${blank}</p>`;
   b+=`<table><tbody>`+
      `<tr><th>기기 분류</th><td>${htmlEsc(cls)}${preset?` (${htmlEsc(preset)})`:''}</td></tr>`+
      `<tr><th>플랫폼</th><td>${htmlEsc(listify('platform'))}</td></tr>`+
      `<tr><th>연결성</th><td>${htmlEsc(listify('conn'))}</td></tr>`+
      `<tr><th>의료 프로토콜</th><td>${htmlEsc(listify('proto'))}</td></tr>`+
      `<tr><th>노출 · 데이터</th><td>${htmlEsc(listify('context'))}</td></tr>`+
-     `<tr><th>테스트 환경</th><td>격리 테스트베드 (공격자/타깃/시뮬레이터/관리 VLAN), 합성 데이터</td></tr>`+
+     `<tr><th>소프트웨어 안전등급 (IEC 62304)</th><td>${F} A &nbsp; ${F} B &nbsp; ${F} C</td></tr>`+
+     `<tr><th>테스트 환경</th><td>격리 테스트베드(공격자/타깃/시뮬레이터/관리 VLAN), 합성 데이터</td></tr>`+
      `</tbody></table>`;
 
-  b+=`<h2>3. 발견 항목 등록부 (Findings Register)</h2>`;
-  b+=`<p>발견별로 한 행씩 작성합니다. 심각도는 CVSS와 안전 영향(AAMI TIR57)을 함께 고려합니다.</p>`;
+  b+=`<h2>3. 위협 모델 (Threat Model)</h2>`;
+  b+=`<p>데이터 흐름·신뢰 경계·진입점·자산을 식별하고 위협을 도출한다(STRIDE 등). 데이터흐름도는 별첨 또는 아래 설명으로 대체: (작성) ${blank}</p>`;
+  b+=`<table><thead><tr><th>진입점 / 자산</th><th>신뢰 경계</th><th>위협 (STRIDE)</th><th>영향</th><th>기존 통제</th></tr></thead><tbody>`+
+     `<tr><td>[예시] DICOM 서비스(104)</td><td>네트워크</td><td>Spoofing·Tampering·Info.Disclosure</td><td>영상·PHI 노출/변조</td><td>${blank}</td></tr>`+
+     `<tr><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td></tr>`+
+     `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>4. 보안 위험 평가 (AAMI TIR57 / SW96)</h2>`;
+  b+=`<p>위협별로 가능성·영향을 산정하고, 통제 후 잔여 위험의 수용 가능성을 판단한다.</p>`;
+  b+=`<table><thead><tr><th>위협 ID</th><th>취약점</th><th>영향(안전 포함)</th><th>가능성</th><th>초기 위험</th><th>통제/완화</th><th>잔여 위험</th><th>수용</th></tr></thead><tbody>`+
+     `<tr><td>T-01</td><td>[예시] 비인증 DICOM</td><td>PHI 노출·오진</td><td>높음</td><td>높음</td><td>노드 인증·TLS·망분리</td><td>낮음</td><td>${F}</td></tr>`+
+     `<tr><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${F}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>5. 보안 아키텍처 뷰 (FDA 4대 뷰)</h2>`;
+  b+=`<p>FDA 가이드가 요구하는 아키텍처 뷰를 작성한다(다이어그램은 별첨 가능).</p>`;
+  b+=`<table><tbody>`+
+     `<tr><th>글로벌 시스템 뷰</th><td>전체 구성요소·인터페이스·데이터 흐름: ${blank}</td></tr>`+
+     `<tr><th>다환자 위해 뷰</th><td>한 기기 침해가 다수 환자에 미치는 경로: ${blank}</td></tr>`+
+     `<tr><th>업데이트·패치 뷰</th><td>펌웨어/SW 업데이트 경로·서명·검증: ${blank}</td></tr>`+
+     `<tr><th>보안 유스케이스 뷰</th><td>인증·권한·암호·로깅 등 보안 기능 흐름: ${blank}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>6. SBOM 및 취약점 분석</h2>`;
+  b+=`<p>기계판독 SBOM을 생성(syft/trivy/cyclonedx)하고 알려진 취약점(trivy/pip-audit)과 지원·EOL을 대조한다.</p>`;
+  b+=`<div class="tool-step"><div class="ts-head"><code>syft · trivy</code> <span class="ts-badge">SBOM 생성·대조</span></div><div class="ts-body">`+
+     `<p class="lbl">SBOM 생성 예</p><pre class="cmd">syft dir:./app -o cyclonedx-json=sbom.json</pre>`+
+     `<p class="lbl">취약점 대조 예</p><pre class="cmd">trivy sbom sbom.json</pre>`+
+     `<p class="lbl">산출물 (작성)</p><p>SBOM 파일: ${blank} / 포맷: ${F} CycloneDX ${F} SPDX</p></div></div>`;
+  b+=`<table><thead><tr><th>구성요소</th><th>버전</th><th>라이선스</th><th>알려진 취약점(CVE)</th><th>지원·EOL</th><th>조치</th></tr></thead><tbody>`+
+     `<tr><td>[예시] openssl</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td></tr>`+
+     `<tr><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>7. 보안 요구사항 ↔ 검증 추적표</h2>`;
+  b+=`<p>보안 요구사항과 검증 방법·결과·증거를 추적한다(설계관리 연계).</p>`;
+  b+=`<table><thead><tr><th>요구사항 ID</th><th>보안 요구사항</th><th>출처(표준)</th><th>검증 방법</th><th>결과</th><th>증거</th></tr></thead><tbody>`+
+     `<tr><td>SR-01</td><td>[예시] 전송 구간 TLS 1.2+ 적용</td><td>FDA·HIPAA</td><td>sslscan/sslyze</td><td>${F} 충족 ${F} 미흡</td><td>${blank}</td></tr>`+
+     `<tr><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${F} 충족 ${F} 미흡</td><td>${blank}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>8. 침투 테스트</h2>`;
+  b+=`<table><tbody>`+
+     `<tr><th>테스터 / 자격</th><td>${blank} (예: OSCP/GPEN, 의료기기 평가 경험)</td></tr>`+
+     `<tr><th>독립성</th><td>${F} 사내 독립팀 &nbsp; ${F} 제3자 독립 &nbsp; ${F} 개발팀 — 근거: ${blank}</td></tr>`+
+     `<tr><th>기간 / 공수</th><td>${blank} (예: 10 person-day)</td></tr>`+
+     `<tr><th>방법론</th><td>MedPen 9단계 + OWASP·MITRE ATT&CK 매핑</td></tr>`+
+     `</tbody></table>`;
+  b+=`<h3>8.1 발견 항목 등록부 (Findings Register)</h3>`;
   b+=`<table><thead><tr><th>ID</th><th>제목</th><th>단계</th><th>심각도</th><th>CVSS</th><th>상태</th><th>권고 요지</th></tr></thead><tbody>`+
      `<tr><td>F-001</td><td>[예시] DICOM 서비스 비인증 접근</td><td>프로토콜</td><td>높음</td><td>7.5</td><td>미조치</td><td>노드 인증·TLS·망분리</td></tr>`+
-     `<tr><td>F-002</td><td>[예시, 교체]</td><td>____</td><td>____</td><td>____</td><td>____</td><td>____</td></tr>`+
+     `<tr><td>F-002</td><td>[예시, 교체]</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td><td>${blank}</td></tr>`+
      `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`+
      `</tbody></table>`;
-  b+=`<h3>발견 상세 (항목별 작성)</h3>`;
+  b+=`<h3>8.2 발견 상세 (항목별 작성)</h3>`;
   b+=`<div class="tool-step"><div class="ts-head"><code>F-001</code> <span class="ts-badge">[예시 양식]</span></div><div class="ts-body">`+
-     `<p class="lbl">영향</p><p>____ (기밀성/무결성/가용성 및 환자 안전 관점)</p>`+
-     `<p class="lbl">재현 절차</p><p>____ (제3자가 재현 가능하게 단계별로)</p>`+
-     `<p class="lbl">증거</p><p>____ (명령 출력·pcap·스크린샷, 합성 데이터)</p>`+
-     `<p class="lbl">위해도</p><p>CVSS ____ / 안전 영향 ____ → 종합 ____</p>`+
-     `<p class="lbl">권고</p><p>____ (완화책 + 관련 표준 요구사항 ID)</p>`+
-     `</div></div>`;
-
-  b+=`<h2>4. 단계별 수행 결과</h2>`;
-  b+=`<p>계획된 각 단계·툴의 수행 여부와 결과를 기록합니다. (${F}=수행, 결과·발견은 작성란에 입력)</p>`;
+     `<p class="lbl">영향</p><p>${blank} (기밀성/무결성/가용성 및 환자 안전 관점)</p>`+
+     `<p class="lbl">재현 절차</p><p>${blank} (제3자가 재현 가능하게 단계별로)</p>`+
+     `<p class="lbl">증거</p><p>${blank} (명령 출력·pcap·스크린샷, 합성 데이터)</p>`+
+     `<p class="lbl">위해도</p><p>CVSS ${blank} / 안전 영향 ${blank} → 종합 ${blank}</p>`+
+     `<p class="lbl">권고 · 재검증</p><p>${blank} (완화책 + 표준 요구사항 ID + 재검증 결과)</p></div></div>`;
+  b+=`<h3>8.3 단계별 수행 결과</h3>`;
   plan().forEach(({ph,why})=>{
     const meta=PHASES[ph];
-    if(ph==='report'){
-      b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">${htmlEsc(why)} — 본 결과서 작성으로 수행.</p>`;
-      return;
-    }
-    b+=`<h3>${meta.n}. ${htmlEsc(meta.t)}</h3><p class="why">목적: ${htmlEsc(why)}</p>`;
+    if(ph==='report')return;
+    b+=`<h4 class="step">${meta.n}. ${htmlEsc(meta.t)}</h4>`;
     b+=`<table><thead><tr><th>툴</th><th>수행</th><th>계획된 실행 예</th><th>결과 요약 (작성)</th><th>발견 ID</th></tr></thead><tbody>`;
     toolsFor(ph).forEach(t=>{
-      b+=`<tr><td><b>${htmlEsc(t.id)}</b></td><td>${F}</td><td><code>${htmlEsc(t.cmd.split('\n')[0])}</code></td><td>____</td><td>____</td></tr>`;
+      b+=`<tr><td><b>${htmlEsc(t.id)}</b></td><td>${F}</td><td><code>${htmlEsc(t.cmd.split('\n')[0])}</code></td><td>${blank}</td><td>${blank}</td></tr>`;
     });
     b+=`</tbody></table>`;
   });
 
-  b+=`<h2>5. 표준 · 규제 준수 매핑</h2>`;
-  b+=`<p>각 요구사항의 충족 여부와 근거(발견 ID·증거)를 기록합니다.</p>`;
-  b+=`<table><thead><tr><th>표준 / 규제</th><th>해당 활동</th><th>충족 여부</th><th>근거 (작성)</th></tr></thead><tbody>`+[
-    ['FDA Premarket Cybersecurity (2023)','SBOM·위협모델링·테스트 증거'],
-    ['IEC 62304','안전등급별 테스트 깊이'],
-    ['ISO 14971 · AAMI TIR57','위해도 산정(보안-안전 연계)'],
-    ['IEC 81001-5-1','생명주기 보안 활동'],
-    ['IEC 62443 · 80001-1','테스트베드 분리·네트워크 위험관리'],
-    ['OWASP ASVS / API Top 10 / MASVS','웹·API·모바일 검증'],
-    ['HIPAA / EU MDR·IVDR / MFDS','PHI 보호·규제 준수']
-  ].map(r=>`<tr><th>${htmlEsc(r[0])}</th><td>${htmlEsc(r[1])}</td><td>${F} 충족 ${F} 부분 ${F} 미흡 ${F} 해당없음</td><td>____</td></tr>`).join('')+`</tbody></table>`;
+  b+=`<h2>9. 표준 · 규제 준수 매핑</h2>`;
+  b+=`<table><thead><tr><th>FDA 제출 요소 / 표준</th><th>해당 문서 절</th><th>충족 여부</th><th>근거 (작성)</th></tr></thead><tbody>`+[
+    ['위협 모델링','3장'],
+    ['보안 위험 평가 (TIR57/SW96)','4장'],
+    ['보안 아키텍처 뷰','5장'],
+    ['SBOM + 취약점 분석','6장'],
+    ['보안 요구사항·검증','7장'],
+    ['침투 테스트 (독립성·결과)','8장'],
+    ['IEC 62304 / ISO 14971','2·4장'],
+    ['라벨링 · 사후시장 관리','11장']
+  ].map(r=>`<tr><th>${htmlEsc(r[0])}</th><td>${htmlEsc(r[1])}</td><td>${F} 충족 ${F} 부분 ${F} 미흡</td><td>${blank}</td></tr>`).join('')+`</tbody></table>`;
 
-  b+=`<h2>6. 위해도 매트릭스 (참조)</h2>`;
+  b+=`<h2>10. 위해도 매트릭스 (참조)</h2>`;
   b+=`<table><thead><tr><th>안전 영향 \\ 보안 심각도</th><th>낮음</th><th>중간</th><th>높음</th><th>치명</th></tr></thead><tbody>`+
      `<tr><th>경미</th><td>관찰</td><td>낮음</td><td>중간</td><td>높음</td></tr>`+
      `<tr><th>중대</th><td>낮음</td><td>중간</td><td>높음</td><td>치명</td></tr>`+
@@ -1061,12 +1103,25 @@ function buildResultBody(){
      `<tr><th>생명 위협</th><td>높음</td><td>치명</td><td>치명</td><td>치명</td></tr>`+
      `</tbody></table>`;
 
-  b+=`<h2>7. 결론 및 권고</h2>`;
-  b+=`<p>종합 결론과 우선순위별 권고를 작성합니다. (작성) ____</p>`;
+  b+=`<h2>11. 라벨링 · 사후시장 관리</h2>`;
+  b+=`<table><tbody>`+
+     `<tr><th>사이버보안 라벨링</th><td>사용자용 보안 설명서·구성 지침·알려진 제약: ${blank}</td></tr>`+
+     `<tr><th>취약점 공개 (coordinated disclosure)</th><td>접수 창구·대응 SLA·공개 정책: ${blank}</td></tr>`+
+     `<tr><th>패치 · 업데이트</th><td>배포 경로·서명·검증·주기: ${blank}</td></tr>`+
+     `<tr><th>SBOM 유지</th><td>갱신 주기·배포 방식: ${blank}</td></tr>`+
+     `<tr><th>모니터링</th><td>위협 인텔리전스·신규 CVE 추적: ${blank}</td></tr>`+
+     `</tbody></table>`;
+
+  b+=`<h2>12. 결론 및 권고</h2>`;
+  b+=`<p>종합 결론과 우선순위별 권고를 작성한다. (작성) ${blank}</p>`;
   if(isSiMD||state.platform.has('wearable')){
     b+=`<div class="callout warn"><span class="ct">안전 주의</span>SiMD/이식형 결과 해석 시 환자 안전 영향을 최우선으로 고려하고, 조치 전까지의 보완 통제를 명시한다.</div>`;
   }
-  b+=`<h2>8. 승인</h2>`;
+
+  b+=`<h2>13. 승인 · FDA 제출 체크리스트</h2>`;
+  b+=`<p>제출 전 아래 요소의 완비를 확인한다.</p>`;
+  b+=`<p>${F} 위협 모델 &nbsp; ${F} 보안 위험 평가 &nbsp; ${F} 아키텍처 뷰 4종 &nbsp; ${F} 기계판독 SBOM &nbsp; ${F} 취약점 분석<br>`+
+     `${F} 보안 요구사항·검증 추적 &nbsp; ${F} 침투 테스트 보고(독립성 명시) &nbsp; ${F} 라벨링 &nbsp; ${F} 사후시장 관리 계획 &nbsp; ${F} 설계관리(QMS) 연계</p>`;
   b+=`<p class="sig">평가자: ______________ (서명/일자)  &nbsp; 검토자: ______________  &nbsp; 승인자: ______________</p>`;
   return b;
 }

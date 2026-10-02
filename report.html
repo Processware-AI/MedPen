@@ -66,6 +66,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 .paper h1{font-family:var(--f-head);font-size:1.6rem;margin:0 0 .5rem;color:#0a3d44;border-bottom:2px solid #0b7c8b;padding-bottom:8px}
 .paper h2{font-family:var(--f-head);font-size:1.2rem;margin:1.4rem 0 .5rem;color:#0b7c8b;border-bottom:1px solid #cdd7db;padding-bottom:4px}
 .paper h3{font-family:var(--f-head);font-size:1.02rem;margin:1rem 0 .3rem;color:#17323a}
+.paper h4{font-family:var(--f-head);font-size:.95rem;margin:.8rem 0 .3rem;color:#17323a}
 .paper p{margin:0 0 .5rem}
 .paper p.meta{color:#555;font-size:.9rem;margin:0 0 .25rem}
 .paper p.why{color:#555;margin:0 0 .4rem}
@@ -185,6 +186,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR','Nanum Got
 h1{font-size:19pt;margin:0 0 6pt;color:#0a3d44;border-bottom:2pt solid #0b7c8b;padding-bottom:6pt}
 h2{font-size:13pt;margin:16pt 0 6pt;color:#0b7c8b;border-bottom:0.5pt solid #cdd7db;padding-bottom:3pt}
 h3{font-size:11.5pt;margin:11pt 0 3pt;color:#17323a;page-break-after:avoid}
+h4{font-size:10.5pt;margin:9pt 0 3pt;color:#17323a;page-break-after:avoid}
 p{margin:0 0 6pt}
 p.meta{color:#555;font-size:10pt;margin:0 0 2pt}
 p.why{color:#555;margin:0 0 4pt}
@@ -278,6 +280,7 @@ function blockToXml(node){
     case 'H1': return docP(inlineRuns(node,{bold:true,size:36}),{after:160});
     case 'H2': return docP(inlineRuns(node,{bold:true,size:28,color:'0C7D8C'}),{before:160,after:80});
     case 'H3': return docP(inlineRuns(node,{bold:true,size:24}),{before:120,after:40});
+    case 'H4': return docP(inlineRuns(node,{bold:true,size:22}),{before:100,after:30});
     case 'P':  return docP(inlineRuns(node,{size:22}),{after:120});
     case 'PRE':return docP(inlineRuns(node,{font:'Consolas',size:20,color:'555555'}),{after:120});
     case 'UL': case 'OL': {
