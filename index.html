@@ -155,6 +155,42 @@ section.band{padding-block:38px;scroll-margin-top:72px}
 .b-inst{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
 .b-miss{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
 .note-line{font-size:.82rem;color:var(--muted);margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--info)}
+/* ---- builder: recommended lab config ---- */
+.lab-block{margin-top:16px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.lab-block .lab-h{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--accent-weak);border-bottom:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));color:var(--accent-ink);font-weight:700;font-size:.92rem}
+.lab-block .lab-h .i{width:22px;height:22px;border-radius:6px;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.lab-list{list-style:none;margin:0;padding:8px 14px 12px}
+.lab-list li{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.84rem}
+.lab-list li:last-child{border-bottom:0}
+.lab-list .k{flex:none;min-width:84px;font-family:var(--f-mono);font-size:.74rem;color:var(--accent-ink);font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding-top:1px}
+.lab-list .v{color:var(--fg)}
+/* ---- testbed section ---- */
+.tb-topo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.tb-fw{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:.86rem;border-radius:var(--r-sm);padding:10px 12px;text-align:center}
+.tb-conn{display:block;width:2px;height:16px;background:var(--line);margin:0 auto}
+.tb-segs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.tb-segs{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.tb-segs{grid-template-columns:1fr}}
+.tb-seg{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:var(--surface-2);min-width:0;border-top:3px solid var(--accent)}
+.tb-seg .vlan{font-family:var(--f-mono);font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.tb-seg h4{font-size:.92rem;margin:2px 0 7px}
+.tb-seg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.tb-seg li{font-size:.8rem;color:var(--muted);padding-left:12px;position:relative}
+.tb-seg li::before{content:"·";position:absolute;left:2px;color:var(--accent)}
+.tb-internet{margin-top:12px;font-size:.8rem;color:var(--muted);text-align:center;padding:8px;background:var(--surface-2);border-radius:var(--r-sm);border:1px dashed var(--line)}
+.tb-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:720px){.tb-cols{grid-template-columns:1fr}}
+.tb-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow)}
+.tb-card h4{font-size:.98rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tb-card h4 .tag{font-family:var(--f-mono);font-size:.66rem;background:var(--accent-weak);color:var(--accent-ink);padding:2px 7px;border-radius:999px;font-weight:700}
+.tb-card ul{margin:0;padding-left:18px}
+.tb-card li{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.tb-check{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 16px;box-shadow:var(--shadow)}
+.tb-check li{list-style:none;display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line);font-size:.86rem}
+.tb-check ul{margin:0;padding:0}
+.tb-check li:last-child{border-bottom:0}
+.tb-check .ck{flex:none;width:20px;height:20px;border-radius:5px;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);display:grid;place-items:center;font-size:.72rem;font-weight:700;margin-top:1px}
+.tb-check b{color:var(--fg)}
 /* export */
 .out-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .out-head h3{font-size:1rem;font-weight:700}
@@ -217,6 +253,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
     <nav class="top-nav">
       <a href="#builder">방법론 빌더</a>
       <a href="#surface">공격 표면</a>
+      <a href="#testbed">테스트베드</a>
       <a href="#catalog">툴 카탈로그</a>
       <a href="#standards">표준·근거</a>
     </nav>
@@ -332,9 +369,50 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
     </div>
   </section>
 
+  <!-- ============ TESTBED ============ -->
+  <section class="band" id="testbed">
+    <div class="sec-head"><span class="n">03</span><h2>테스트베드 네트워크 구성</h2></div>
+    <p class="sec-sub">SaMD/SiMD 테스트 환경은 <b>격리(isolation)</b>와 <b>현실 재현(fidelity)</b>의 균형이 핵심입니다. 임상·운영망과 완전히 분리하되, 실제 배포 환경을 충분히 재현해야 유효한 결과가 나옵니다. (IEC 80001-1 · IEC 62443 참조)</p>
+
+    <div class="tb-topo">
+      <div class="tb-fw">🛡 LAB 방화벽 / 라우터 — VLAN 간 통제·전수 로깅</div>
+      <span class="tb-conn"></span>
+      <div class="tb-segs">
+        <div class="tb-seg"><span class="vlan">VLAN 10</span><h4>공격자</h4><ul><li>Kali + MedPen 툴셋</li><li>타깃·시뮬레이터로만 라우팅</li></ul></div>
+        <div class="tb-seg"><span class="vlan">VLAN 20</span><h4>타깃 (DUT)</h4><ul><li>테스트 대상 SaMD/SiMD</li><li>필요 포트만 개방·스냅샷</li></ul></div>
+        <div class="tb-seg"><span class="vlan">VLAN 30</span><h4>시뮬레이터</h4><ul><li>DICOM 노드·HL7/FHIR 엔진</li><li>MQTT 브로커·PACS/EHR 모사</li></ul></div>
+        <div class="tb-seg"><span class="vlan">VLAN 40</span><h4>관리 · 캡처</h4><ul><li>TAP/SPAN pcap·SIEM</li><li>점프호스트 전용 접근</li></ul></div>
+      </div>
+      <div class="tb-internet">🌐 인터넷·클라우드는 <b>통제된 아웃바운드 프록시/NAT</b>로만 — 기본은 차단(air-gap)</div>
+    </div>
+
+    <div class="tb-cols">
+      <div class="tb-card"><h4>SaMD 랩 <span class="tag">독립형</span></h4><ul>
+        <li>스테이징/프리프로덕션 환경 복제 (프로덕션 금지)</li>
+        <li>클라우드 API·업데이트 서버는 통제 프록시로만, 전수 로깅</li>
+        <li>모바일: 전용 Wi-Fi AP + mitmproxy 투명 프록시, 테스트 CA 신뢰 등록(핀닝 검증)</li>
+        <li>TLS 가시성 확보 후 웹/API·인증·세션 평가</li>
+      </ul></div>
+      <div class="tb-card"><h4>SiMD 랩 <span class="tag">내장형</span></h4><ul>
+        <li>BLE/무선은 Faraday 차폐 공간에서 (간섭·오동작 방지)</li>
+        <li>전용 RF(ISM 등)는 차폐 환경 SDR·안테나, 송신 법적·격리 조건 준수</li>
+        <li>하드웨어 벤치: UART·JTAG/SWD·플래시·CAN 분리 연결</li>
+        <li>액추에이터·용량 경로는 모의 부하로 대체, 펌웨어는 QEMU 에뮬</li>
+      </ul></div>
+    </div>
+
+    <div class="tb-check"><ul>
+      <li><span class="ck">✓</span><span><b>완전 분리</b> — 임상·운영망과 물리/논리 분리, 환자 연결 장비 접속 금지</span></li>
+      <li><span class="ck">✓</span><span><b>합성 데이터</b> — 실제 PHI 금지, 캡처 산출물 암호화 보관·계약 종료 시 파기</span></li>
+      <li><span class="ck">✓</span><span><b>전구간 가시성</b> — TAP/SPAN pcap + 중앙 로그로 모든 트래픽 기록</span></li>
+      <li><span class="ck">✓</span><span><b>복원성</b> — DUT 스냅샷·IaC 구성·킬스위치(전원/링크 차단)</span></li>
+      <li><span class="ck">✓</span><span><b>안전 전제</b> — SiMD/이식형 실동작 테스트는 안전 담당자 승인·하드웨어 안전장치 하에서만</span></li>
+    </ul></div>
+  </section>
+
   <!-- ============ CATALOG ============ -->
   <section class="band" id="catalog">
-    <div class="sec-head"><span class="n">03</span><h2>툴 카탈로그</h2></div>
+    <div class="sec-head"><span class="n">04</span><h2>툴 카탈로그</h2></div>
     <p class="sec-sub">이 Kali 시스템에서 확인된 설치 상태를 함께 표기합니다. <span class="badge b-inst">INSTALLED</span> 는 현재 사용 가능, <span class="badge b-miss">apt install</span> 은 추가 설치가 필요한 권장 툴입니다.</p>
     <div class="toolbar">
       <label class="search"><span>🔎</span><input id="searchIn" type="text" placeholder="툴 이름, 용도 검색 (예: dicom, firmware, ble)" aria-label="툴 검색"></label>
@@ -345,7 +423,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 
   <!-- ============ STANDARDS ============ -->
   <section class="band" id="standards">
-    <div class="sec-head"><span class="n">04</span><h2>표준 · 근거</h2></div>
+    <div class="sec-head"><span class="n">05</span><h2>표준 · 근거</h2></div>
     <p class="sec-sub">방법론 단계는 아래 규제·프레임워크에 매핑됩니다. 평가 보고서 작성 시 추적성(traceability) 근거로 사용하세요.</p>
     <div class="refgrid">
       <div class="refcard"><span class="tag">FDA 2023</span><h4>Premarket Cybersecurity Guidance</h4><p>SBOM, 위협 모델링, 침투 테스트 증거를 시판 전 제출물에 요구. SaMD/SiMD 공통.</p></div>
@@ -618,6 +696,30 @@ function profileTags(){
   return out.join("");
 }
 
+// profile → recommended test lab configuration
+function labConfig(){
+  const S=state, L=[];
+  L.push({k:"세그먼트",v:"격리 LAB — 공격자/타깃/시뮬레이터/관리 VLAN 분리, 임상·운영망과 완전 차단"});
+  const external=S.context.has('internet')||S.class==='samd'||S.platform.has('web')||S.platform.has('mobile');
+  L.push({k:"외부 연동",v:external?"통제된 아웃바운드 프록시/NAT로만 외부 통신·전수 로깅":"기본 air-gap(외부 차단), 필요 시 통제 게이트웨이"});
+  const sims=[];
+  if(S.proto.has('dicom'))sims.push("DICOM 노드(Orthanc/dcmtk)");
+  if(S.proto.has('hl7'))sims.push("HL7/FHIR 엔진(Mirth)");
+  if(S.proto.has('mqtt'))sims.push("MQTT 브로커(mosquitto)");
+  if(S.proto.has('prop'))sims.push("전용 프로토콜 더미 엔드포인트");
+  if(sims.length)L.push({k:"시뮬레이터",v:sims.join(" · ")});
+  if(S.platform.has('web')||S.platform.has('desktop'))L.push({k:"스테이징",v:"프리프로덕션 환경 복제(프로덕션 금지)"});
+  if(S.platform.has('mobile'))L.push({k:"모바일",v:"전용 테스트 Wi-Fi AP + mitmproxy 투명 프록시, 테스트 CA 신뢰 등록(핀닝 검증)"});
+  if(S.conn.has('ble'))L.push({k:"BLE",v:"Faraday 차폐 공간 + BLE 스니퍼(ubertooth), 전용 페어링 AP"});
+  if(S.conn.has('rf'))L.push({k:"전용 RF",v:"차폐 환경 SDR(HackRF)·안테나, 송신은 법적 허용·격리 조건 준수"});
+  const hw=S.conn.has('usb')||S.class==='simd'||S.platform.has('embedded')||S.platform.has('wearable');
+  if(hw)L.push({k:"하드웨어 벤치",v:"UART(minicom)·JTAG/SWD(OpenOCD)·플래시(flashrom)"+((S.conn.has('prop')||S.proto.has('prop'))?"·CAN(can-utils)":"")+" 분리 벤치, 펌웨어는 QEMU 에뮬"});
+  if(S.class==='simd'||S.platform.has('wearable'))L.push({k:"안전 대체",v:"액추에이터·용량 제어 경로는 모의 부하(dummy load)·시뮬레이터로 대체, 실동작은 안전 담당자 승인 전제"});
+  if(S.context.has('phi'))L.push({k:"데이터",v:"합성·비식별 데이터만, pcap·산출물 암호화·파기"});
+  L.push({k:"가시성",v:"TAP/SPAN 전구간 pcap + 중앙 로그, DUT 스냅샷 복원"});
+  return L;
+}
+
 function renderPlan(){
   const head=document.getElementById('outHead');
   if(!state.class){outEmpty.hidden=false;outBody.hidden=true;head.hidden=true;return;}
@@ -641,6 +743,11 @@ function renderPlan(){
     });
     html+=`</div></div>`;
   });
+  // recommended lab configuration for this profile
+  const lab=labConfig();
+  html+=`<div class="lab-block"><div class="lab-h"><span class="i">⊞</span>권장 테스트 랩 구성</div><ul class="lab-list">`;
+  lab.forEach(x=>{ html+=`<li><span class="k">${esc(x.k)}</span><span class="v">${esc(x.v)}</span></li>`; });
+  html+=`</ul></div>`;
   // safety note tailored
   if(state.class==='simd'||state.platform.has('wearable')){
     html+=`<div class="note-line"><b>안전 주의:</b> SiMD/이식형 테스트는 환자와 분리된 전용 벤치(모의 부하, 에뮬레이터)에서만 수행합니다. 액추에이터·용량 제어 경로에 대한 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치가 전제됩니다.</div>`;
@@ -699,7 +806,10 @@ function buildReportBody(){
   }else if(state.context.has('phi')){
     b+=`<h2>4. 데이터 주의</h2><p>PHI를 다루므로 테스트 데이터는 합성·비식별 데이터만 사용하고, 캡처 산출물은 암호화 보관 후 계약 종료 시 파기한다.</p>`;
   }
-  b+=`<h2>5. 발견 요약 (작성)</h2><p>발견 항목별 위해도·영향·권고를 여기에 작성합니다.</p>`;
+  b+=`<h2>5. 권장 테스트 환경</h2><ul>`;
+  labConfig().forEach(x=>{ b+=`<li><b>${htmlEsc(x.k)}</b> — ${htmlEsc(x.v)}</li>`; });
+  b+=`</ul>`;
+  b+=`<h2>6. 발견 요약 (작성)</h2><p>발견 항목별 위해도·영향·권고를 여기에 작성합니다.</p>`;
   b+=`<p class="sig">작성자: ____________________    검토자: ____________________    일자: ${date}</p>`;
   return b;
 }
