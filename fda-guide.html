@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FDA 제출 가이드</title>
+<style>
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f1f4f7; --line:#dde3e9;
+  --fg:#141b22; --muted:#566573; --faint:#8a97a4;
+  --accent:#0b7c8b; --accent-2:#149eb0; --accent-weak:#d9edf0; --accent-ink:#064e57;
+  --ok:#2f8f4e; --warn:#b5730b; --crit:#c0392b;
+  --grad:linear-gradient(135deg,#0b7c8b,#17a3b5);
+  --shadow:0 1px 2px rgba(18,38,48,.05),0 2px 10px rgba(18,38,48,.05);
+  --r-sm:7px; --r:11px;
+  --f-head:"Archivo","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-2:#38c9da; --accent-weak:#10323a; --accent-ink:#8fe3ec;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f;
+  --grad:linear-gradient(135deg,#1796a6,#2bc0d2);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 2px 12px rgba(0,0,0,.35); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-2:#38c9da; --accent-weak:#10323a; --accent-ink:#8fe3ec;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f;
+  --grad:linear-gradient(135deg,#1796a6,#2bc0d2);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 2px 12px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);line-height:1.2;margin:0;word-break:keep-all;text-wrap:balance}
+a{color:var(--accent)}
+code{font-family:var(--f-mono)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:940px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-head);font-weight:700;font-size:1rem}
+.brand .mk{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--grad);color:#fff}
+.sp{margin-left:auto}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:7px;padding:7px 12px;cursor:pointer;font-family:var(--f-body);font-size:.82rem;font-weight:600;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--accent);color:var(--fg)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.wrap{max-width:940px;margin:0 auto;padding:30px 18px 80px}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+.doc-title{font-size:clamp(1.7rem,4vw,2.5rem);font-weight:800;letter-spacing:-.02em;margin:.4rem 0 .5rem}
+.lead{color:var(--muted);max-width:68ch}
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin:24px 0;box-shadow:var(--shadow)}
+.toc h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px}
+.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}
+@media(max-width:640px){.toc ol{columns:1}}
+.toc li{margin-bottom:5px}.toc a{color:var(--fg);text-decoration:none;font-size:.9rem}.toc a:hover{color:var(--accent)}
+section.sec{margin-top:40px;scroll-margin-top:72px}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.sec-h .n{font-family:var(--f-mono);color:#fff;background:var(--grad);font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:var(--r-sm)}
+.sec-h h2{font-size:clamp(1.3rem,2.6vw,1.6rem);font-weight:800}
+h3.sub{font-size:1.1rem;margin:24px 0 8px;color:var(--accent-ink)}
+p{margin:0 0 12px}ul,ol{padding-left:22px}li{margin-bottom:6px}
+.callout{border-radius:var(--r);padding:13px 16px;margin:16px 0;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2)}
+.callout .ct{font-weight:700;display:block;margin-bottom:3px}
+.callout.warn{background:color-mix(in srgb,var(--crit) 10%,transparent);border-color:color-mix(in srgb,var(--crit) 35%,var(--line));border-left:4px solid var(--crit)}
+.callout.warn .ct{color:var(--crit)}
+.callout.note{background:var(--accent-weak);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));border-left:4px solid var(--accent)}
+.callout.note .ct{color:var(--accent-ink)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin:16px 0;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:560px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--surface-2);font-family:var(--f-head);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+tbody tr:last-child td{border-bottom:0}
+td b,th b{color:var(--accent-ink)}
+.elem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:14px 0;box-shadow:var(--shadow)}
+.elem h3{font-size:1.05rem;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.elem h3 .tag{font-family:var(--f-mono);font-size:.64rem;background:var(--accent-weak);color:var(--accent-ink);padding:2px 7px;border-radius:999px;font-weight:700}
+.elem .row{font-size:.88rem;margin:6px 0}
+.elem .row b{color:var(--accent-ink)}
+.elem .gap{color:var(--crit)}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+@media print{.topbar,.no-print{display:none!important}body{background:#fff;color:#111}.wrap{max-width:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="in">
+    <div class="brand"><span class="mk">⊕</span> FDA 제출 가이드</div>
+    <div class="sp"></div>
+    <a class="btn" href="index.html">← 빌더</a>
+    <a class="btn" href="assessment-guide.html">평가 가이드</a>
+    <button class="btn" id="themeBtn" type="button">◐ 테마</button>
+    <button class="btn pri" id="printBtn" type="button">⬇ 인쇄 / PDF</button>
+  </div>
+</div>
+<div class="wrap">
+  <span class="eyebrow">FDA Premarket Cybersecurity Submission</span>
+  <h1 class="doc-title">FDA 사이버보안 제출 가이드 — 요소별 완성법</h1>
+  <p class="lead">FDA 시판 전 사이버보안 제출(FD&C Act §524B · 2023 가이드 "Cybersecurity in Medical Devices")의 요소를 설명하고, MedPen이 산출하는 부분과 제출 등급으로 채우는 방법을 안내합니다. 침투 테스트 결과서는 이 패키지의 한 구성요소입니다.</p>
+
+  <div class="callout warn">
+    <span class="ct">⚠️ 중요 — 이 도구만으로는 제출물이 완성되지 않습니다</span>
+    MedPen은 방법론·계획서/결과서 <b>템플릿</b>과 침투 테스트 수행을 돕습니다. 실제 제출물은 <b>대상 기기에 대한 실측 결과</b>와 아래 요소 전체를 설계관리(21 CFR 820 / ISO 13485) 체계 안에서 작성해야 합니다. 이 문서는 기술 안내이며 규제 자문이 아닙니다 — 제출 전 RA 담당·FDA 가이드 원문·필요시 Q-Submission으로 확인하세요.
+  </div>
+
+  <nav class="toc"><h2>목차</h2><ol>
+    <li><a href="#overview">1. 개요 — 무엇이 요구되는가</a></li>
+    <li><a href="#map">2. 제출 요소 지도 (MedPen 매핑)</a></li>
+    <li><a href="#elements">3. 요소별 상세 · 완성법</a></li>
+    <li><a href="#independence">4. 테스터 독립성 · 자격</a></li>
+    <li><a href="#workflow">5. 작성 워크플로</a></li>
+    <li><a href="#limits">6. 한계 · 면책</a></li>
+  </ol></nav>
+
+  <section class="sec" id="overview">
+    <div class="sec-h"><span class="n">1</span><h2>개요 — 무엇이 요구되는가</h2></div>
+    <p>2023년 제정된 FD&C Act <b>§524B</b>는 "사이버 기기(cyber device)"에 대해 사이버보안 정보 제출을 의무화합니다. FDA 2023 가이드는 제출물에 위협 모델링, 보안 위험 관리, 보안 아키텍처, SBOM, 보안 테스트(침투 테스트 포함), 라벨링, 사후시장 관리 계획을 포함하도록 권고합니다.</p>
+    <p>핵심은 <b>"보안을 품질 시스템(QMS)과 제품 생명주기에 통합했다"</b>는 것을 문서로 입증하는 것입니다. 침투 테스트 하나로는 부족하며, 설계 단계의 위협 모델·위험 관리와 연결되어야 합니다.</p>
+  </section>
+
+  <section class="sec" id="map">
+    <div class="sec-h"><span class="n">2</span><h2>제출 요소 지도 (MedPen 매핑)</h2></div>
+    <p>FDA 제출 요소와 MedPen 산출물, 추가로 필요한 작업의 매핑입니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>FDA 제출 요소</th><th>MedPen 산출</th><th>추가 필요</th></tr></thead>
+      <tbody>
+        <tr><td><b>위협 모델링</b></td><td>결과서 3장 STRIDE 템플릿</td><td>기기별 데이터흐름도·신뢰경계</td></tr>
+        <tr><td><b>보안 위험 평가</b> (TIR57/SW96)</td><td>결과서 4장 위험 산정표 + 위해도 매트릭스</td><td>위협별 정량 산정·잔여위험 수용 근거</td></tr>
+        <tr><td><b>보안 아키텍처 뷰</b></td><td>결과서 5장 4대 뷰 템플릿</td><td>기기별 아키텍처 다이어그램</td></tr>
+        <tr><td><b>SBOM + 취약점 분석</b></td><td>syft/trivy/cyclonedx/pip-audit + 결과서 6장</td><td>실제 SBOM 생성·CVE 대조·EOL 확인</td></tr>
+        <tr><td><b>보안 요구사항·검증</b></td><td>결과서 7장 추적표</td><td>요구사항 정의·검증 증거 연결</td></tr>
+        <tr><td><b>침투 테스트</b></td><td>방법론·계획서·결과서 8장(독립성 포함)</td><td>실제 수행·실측 발견·증거</td></tr>
+        <tr><td><b>라벨링</b></td><td>결과서 11장 템플릿</td><td>사용자용 보안 설명서</td></tr>
+        <tr><td><b>사후시장 관리</b></td><td>결과서 11장 (공개·패치·SBOM 유지)</td><td>취약점 처리 절차·모니터링 체계</td></tr>
+        <tr><td><b>QMS 연계</b></td><td>(참조만)</td><td>설계관리·추적성 (21 CFR 820)</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout note"><span class="ct">바로 시작</span><a href="index.html#builder">빌더</a>에서 프로파일 선택 → <b>결과서 템플릿</b> 생성 → 위 요소들이 포함된 초안을 편집 페이지에서 채우고 DOCX/PDF로 내보내세요.</div>
+  </section>
+
+  <section class="sec" id="elements">
+    <div class="sec-h"><span class="n">3</span><h2>요소별 상세 · 완성법</h2></div>
+
+    <div class="elem"><h3>위협 모델링 <span class="tag">결과서 3장</span></h3>
+      <div class="row"><b>FDA 기대:</b> 데이터 흐름·신뢰 경계·진입점·자산 식별, 위협 도출(STRIDE 등), 각 위협의 완화 연결.</div>
+      <div class="row"><b>완성법:</b> 기기 데이터흐름도(DFD)를 그리고, 진입점별 STRIDE 위협을 표에 채웁니다. 각 위협은 4장 위험 평가·8장 테스트와 ID로 연결.</div>
+      <div class="row gap"><b>흔한 미흡:</b> 일반론만 기술하고 기기 특정 데이터 흐름·신뢰 경계가 없음.</div>
+    </div>
+    <div class="elem"><h3>보안 위험 평가 <span class="tag">결과서 4장</span></h3>
+      <div class="row"><b>FDA 기대:</b> AAMI TIR57/SW96에 따라 보안 위험을 안전 위험(ISO 14971)과 연계, 통제 후 잔여 위험 수용 판단.</div>
+      <div class="row"><b>완성법:</b> 위협별 가능성·영향(안전 포함)을 산정하고 통제·잔여위험·수용 여부를 기록. 환자 안전 영향이 큰 항목은 위해도 매트릭스로 우선순위화.</div>
+      <div class="row gap"><b>흔한 미흡:</b> 보안 위험을 안전 위험과 분리해 다룸(연계 누락).</div>
+    </div>
+    <div class="elem"><h3>보안 아키텍처 뷰 <span class="tag">결과서 5장</span></h3>
+      <div class="row"><b>FDA 기대:</b> 글로벌 시스템 / 다환자 위해 / 업데이트·패치 / 보안 유스케이스의 4대 뷰.</div>
+      <div class="row"><b>완성법:</b> 각 뷰를 다이어그램 + 설명으로 작성. 특히 "한 기기 침해가 다수 환자에 미치는 경로"와 "서명된 업데이트 검증"을 명확히.</div>
+      <div class="row gap"><b>흔한 미흡:</b> 다환자 위해 뷰·업데이트 검증 경로 누락.</div>
+    </div>
+    <div class="elem"><h3>SBOM + 취약점 분석 <span class="tag">결과서 6장 · syft/trivy</span></h3>
+      <div class="row"><b>FDA 기대:</b> 기계판독 SBOM(구성요소·버전·지원상태), 알려진 취약점 대조, 미지원/EOL 구성요소 관리.</div>
+      <div class="row"><b>완성법:</b> <code>syft dir:./app -o cyclonedx-json</code>로 SBOM 생성 → <code>trivy sbom</code>·<code>pip-audit</code>로 CVE 대조 → 각 구성요소의 조치·EOL을 표에 기록.</div>
+      <div class="row gap"><b>흔한 미흡:</b> SBOM이 기계판독 포맷(CycloneDX/SPDX)이 아니거나 취약점 대조·EOL 정보 없음.</div>
+    </div>
+    <div class="elem"><h3>보안 요구사항 ↔ 검증 <span class="tag">결과서 7장</span></h3>
+      <div class="row"><b>FDA 기대:</b> 보안 요구사항과 그 검증(테스트) 증거의 추적성.</div>
+      <div class="row"><b>완성법:</b> 요구사항 ID ↔ 출처(표준) ↔ 검증 방법(툴) ↔ 결과 ↔ 증거를 표로 연결. 설계관리 문서와 상호 참조.</div>
+      <div class="row gap"><b>흔한 미흡:</b> 테스트는 있으나 요구사항과의 추적 연결이 없음.</div>
+    </div>
+    <div class="elem"><h3>침투 테스트 <span class="tag">결과서 8장 · 방법론</span></h3>
+      <div class="row"><b>FDA 기대:</b> 범위·방법·<b>기간·테스터 자격/독립성</b>, 발견별 심각도·재현·증거·수정/재검증.</div>
+      <div class="row"><b>완성법:</b> MedPen 9단계로 수행하고 발견을 등록부·상세 양식에 기록. 테스터 독립성·자격·공수를 명시(4장 참조).</div>
+      <div class="row gap"><b>흔한 미흡:</b> 독립성·자격·기간 미기재, 발견 재현 절차·증거 부족.</div>
+    </div>
+    <div class="elem"><h3>라벨링 · 사후시장 관리 <span class="tag">결과서 11장</span></h3>
+      <div class="row"><b>FDA 기대:</b> 사용자용 보안 설명서, 취약점 공개(coordinated disclosure) 정책, 패치·SBOM 유지, 모니터링 계획.</div>
+      <div class="row"><b>완성법:</b> 취약점 접수 창구·대응 SLA·공개 정책, 업데이트 배포·서명·검증, SBOM 갱신 주기를 문서화.</div>
+      <div class="row gap"><b>흔한 미흡:</b> 사후시장 취약점 처리 절차·공개 정책 부재.</div>
+    </div>
+  </section>
+
+  <section class="sec" id="independence">
+    <div class="sec-h"><span class="n">4</span><h2>테스터 독립성 · 자격</h2></div>
+    <p>FDA는 보안 테스트를 적격한 인력이 수행하기를 기대하며, 많은 리뷰어가 <b>독립성</b>(개발팀과 분리, 또는 제3자)을 중요하게 봅니다.</p>
+    <ul>
+      <li><b>독립성 수준</b>을 명시: 사내 독립팀 / 제3자 독립 / 개발팀 — 선택 근거 포함.</li>
+      <li><b>자격</b>을 기재: 관련 자격(OSCP/GPEN 등)·의료기기 보안 평가 경험.</li>
+      <li><b>기간·공수(person-day)</b>와 범위를 명시해 테스트의 충분성을 보임.</li>
+    </ul>
+    <div class="callout note"><span class="ct">결과서에 반영됨</span>결과서 8장 상단에 테스터 자격·독립성·기간·방법론 표가 포함되어 있습니다.</div>
+  </section>
+
+  <section class="sec" id="workflow">
+    <div class="sec-h"><span class="n">5</span><h2>작성 워크플로</h2></div>
+    <ol>
+      <li><b>설계 단계</b>: 위협 모델 → 보안 위험 평가 → 보안 요구사항 도출 (설계관리 연계).</li>
+      <li><b>구현/통합</b>: SBOM 생성(syft) + 취약점 대조(trivy/pip-audit), 아키텍처 뷰 작성.</li>
+      <li><b>검증</b>: MedPen 9단계 침투 테스트 수행(독립성 확보) → 요구사항↔검증 추적.</li>
+      <li><b>문서화</b>: 빌더 → <b>결과서 템플릿</b> 생성 → 각 장을 실측 결과로 채움 → DOCX/PDF.</li>
+      <li><b>사후시장</b>: 취약점 공개·패치·SBOM 유지 계획 수립.</li>
+      <li><b>검토</b>: RA 담당 검토 → 필요시 FDA Pre-Submission(Q-Sub).</li>
+    </ol>
+  </section>
+
+  <section class="sec" id="limits">
+    <div class="sec-h"><span class="n">6</span><h2>한계 · 면책</h2></div>
+    <ul>
+      <li>MedPen은 <b>방법론·템플릿·테스트 보조 도구</b>이며, 그 자체가 FDA 제출물이 아닙니다.</li>
+      <li>예시 명령·출력·프로파일은 교육용 가상 데이터입니다. 실제 제출은 대상 기기 실측 결과가 필요합니다.</li>
+      <li>규제 요구는 개정될 수 있습니다. 제출 전 반드시 <b>FDA 가이드 원문</b>과 <b>RA(규제 담당)</b> 검토를 거치세요.</li>
+      <li>본 문서는 기술 안내이며 법률·규제 자문이 아닙니다.</li>
+    </ul>
+  </section>
+
+  <footer>MedPen Methodology · FDA 제출 가이드 · 승인된 보안 평가 전용 · 규제 자문 아님</footer>
+</div>
+<script>
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+const tb=document.getElementById('themeBtn');
+let theme=null; try{theme=localStorage.getItem('mp-theme');}catch(e){}
+if(theme)document.documentElement.setAttribute('data-theme',theme);
+tb.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const sysDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const next=(cur==='dark'||(!cur&&sysDark))?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('mp-theme',next);}catch(e){}
+});
+</script>
+</body>
+</html>

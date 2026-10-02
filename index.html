@@ -274,6 +274,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <a href="#catalog">툴 카탈로그</a>
       <a href="assessment-guide.html">평가 가이드</a>
       <a href="#standards">표준·근거</a>
+      <a href="#fda">FDA 제출</a>
     </nav>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="테마 전환">◐ Theme</button>
   </div>
@@ -503,6 +504,32 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <div class="refcard"><span class="tag">IEC 81001-5-1</span><h4>Health Software Security</h4><p>헬스 소프트웨어의 보안 활동을 생명주기 전반에 규정. 사후시장 포함.</p></div>
       <div class="refcard"><span class="tag">OWASP</span><h4>ASVS · MASVS · API Top 10</h4><p>SaMD 웹·API·모바일 검증 체크리스트. 테스트 케이스 도출의 실무 기준.</p></div>
       <div class="refcard"><span class="tag">MITRE</span><h4>Medical Device Rubric / ATT&CK</h4><p>위협 모델링과 공격 기법 분류. 절차 각 단계의 기법 매핑에 활용.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ FDA SUBMISSION ============ -->
+  <section class="band" id="fda">
+    <div class="sec-head"><span class="n">06</span><h2>FDA 제출 요소 매핑</h2></div>
+    <p class="sec-sub">FDA 시판 전 사이버보안 제출(FD&C Act §524B · 2023 가이드)은 침투 테스트 외에도 여러 요소를 요구합니다. 침투 테스트 결과서는 그 <b>한 구성요소</b>입니다. 아래는 각 요소와 MedPen 산출물의 매핑입니다. 자세한 완성법은 <a href="fda-guide.html">FDA 제출 가이드</a>를 참조하세요.</p>
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th>FDA 제출 요소</th><th>MedPen 산출</th><th>추가 필요 (실측·기기별)</th></tr></thead>
+        <tbody>
+          <tr><td><b>위협 모델링</b></td><td>결과서 템플릿 3장 (STRIDE)</td><td>기기별 데이터흐름도·신뢰경계</td></tr>
+          <tr><td><b>보안 위험 평가</b> (AAMI TIR57/SW96)</td><td>결과서 4장 + 위해도 매트릭스</td><td>위협별 정량 산정·잔여위험 수용</td></tr>
+          <tr><td><b>보안 아키텍처 뷰</b> (4종)</td><td>결과서 5장 템플릿</td><td>기기별 아키텍처 다이어그램</td></tr>
+          <tr><td><b>SBOM + 취약점 분석</b></td><td>syft·trivy·cyclonedx·pip-audit + 결과서 6장</td><td>실제 SBOM 생성·CVE 대조·EOL</td></tr>
+          <tr><td><b>보안 요구사항·검증</b></td><td>결과서 7장 추적표</td><td>요구사항 정의·검증 증거</td></tr>
+          <tr><td><b>침투 테스트</b> (독립성·결과)</td><td>방법론·계획서·결과서 8장</td><td>실제 수행·실측 발견·증거</td></tr>
+          <tr><td><b>라벨링 · 사후시장 관리</b></td><td>결과서 11장 템플릿</td><td>보안 설명서·취약점 공개·패치 체계</td></tr>
+          <tr><td><b>QMS 연계</b> (21 CFR 820)</td><td>(참조)</td><td>설계관리·추적성 문서</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sec-sub" style="margin-top:16px">빌더에서 프로파일을 선택하고 <b>결과서 템플릿</b>을 생성하면 위 요소가 포함된 작성 초안을 바로 받을 수 있습니다. <a href="fda-guide.html">→ FDA 제출 가이드 (요소별 완성법)</a></p>
+    <div class="authbox" role="note" style="margin-top:16px">
+      <span class="ic">⚠️</span>
+      <p><b>한계.</b> MedPen은 방법론·템플릿·테스트 보조 도구이며 그 자체가 FDA 제출물이 아닙니다. 실제 제출은 대상 기기 실측 결과와 위 요소 전체를 설계관리 체계 안에서 작성해야 하며, 제출 전 RA 담당·FDA 가이드 원문 확인이 필요합니다. (규제 자문 아님)</p>
     </div>
   </section>
 </div>
