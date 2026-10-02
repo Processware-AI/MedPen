@@ -87,10 +87,10 @@ window.MEDPEN_TOOLS = [
   {id:"dex2jar",cat:"firmware",ph:["firmware"],inst:true,chk:"d2j-dex2jar",desc:"Android dex를 jar로 변환(정적 분석용).",cmd:"d2j-dex2jar app.apk",samd:"모바일 SaMD를 jd-gui 등으로 Java 수준 검토하기 위한 전처리.",tags:["mobile"]},
   {id:"jd-gui",cat:"firmware",ph:["firmware"],inst:true,chk:"jd-gui",desc:"Java 바이트코드 디컴파일 GUI.",cmd:"jd-gui app-dex2jar.jar",samd:"모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토.",tags:["mobile"]},
   // ===== SBOM / 공급망 (FDA 제출 요소) =====
-  {id:"syft",cat:"sbom",ph:["report"],inst:false,chk:"syft",desc:"SBOM 생성기. 파일시스템·이미지에서 SPDX/CycloneDX SBOM 산출.",cmd:"syft dir:./firmware -o cyclonedx-json",samd:"FDA 요구 기계판독 SBOM 생성 — 구성요소·버전 목록화.",tags:["phi"]},
-  {id:"trivy",cat:"sbom",ph:["report"],inst:false,chk:"trivy",desc:"SBOM 생성 + 알려진 취약점(CVE) 스캔. 파일시스템·이미지·SBOM 대상.",cmd:"trivy fs --format cyclonedx -o sbom.json ./app",samd:"SBOM 구성요소의 알려진 취약점 대조(사후시장 관리 근거).",tags:["phi"]},
-  {id:"cyclonedx",cat:"sbom",ph:["report"],inst:false,chk:"cyclonedx-py",desc:"CycloneDX SBOM 생성(Python 의존성).",cmd:"cyclonedx-py requirements -i requirements.txt",samd:"Python 기반 SaMD의 표준 포맷 SBOM 산출.",tags:["phi"]},
-  {id:"pip-audit",cat:"sbom",ph:["report"],inst:false,chk:"pip-audit",desc:"Python 의존성의 알려진 취약점 감사.",cmd:"pip-audit -r requirements.txt",samd:"SaMD 백엔드 의존성의 취약 패키지 식별.",tags:["phi"]}
+  {id:"syft",cat:"sbom",ph:["report"],inst:true,chk:"syft",desc:"SBOM 생성기. 파일시스템·이미지에서 SPDX/CycloneDX SBOM 산출.",cmd:"syft dir:./firmware -o cyclonedx-json",samd:"FDA 요구 기계판독 SBOM 생성 — 구성요소·버전 목록화.",tags:["phi"]},
+  {id:"trivy",cat:"sbom",ph:["report"],inst:true,chk:"trivy",desc:"SBOM 생성 + 알려진 취약점(CVE) 스캔. 파일시스템·이미지·SBOM 대상.",cmd:"trivy fs --format cyclonedx -o sbom.json ./app",samd:"SBOM 구성요소의 알려진 취약점 대조(사후시장 관리 근거).",tags:["phi"]},
+  {id:"cyclonedx",cat:"sbom",ph:["report"],inst:true,chk:"cyclonedx-py",desc:"CycloneDX SBOM 생성(Python 의존성).",cmd:"cyclonedx-py requirements -i requirements.txt",samd:"Python 기반 SaMD의 표준 포맷 SBOM 산출.",tags:["phi"]},
+  {id:"pip-audit",cat:"sbom",ph:["report"],inst:true,chk:"pip-audit",desc:"Python 의존성의 알려진 취약점 감사.",cmd:"pip-audit -r requirements.txt",samd:"SaMD 백엔드 의존성의 취약 패키지 식별.",tags:["phi"]}
 ];
 
 /* 각 툴의 상세: ov=개요, tc=[{t:제목,s:절차}] 테스트 케이스, cs=[사례], rf=[[라벨,URL]] 참고 */
