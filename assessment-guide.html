@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>평가 계획서 가이드</title>
+<style>
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f1f4f7; --line:#dde3e9;
+  --fg:#141b22; --muted:#566573; --faint:#8a97a4;
+  --accent:#0b7c8b; --accent-2:#149eb0; --accent-weak:#d9edf0; --accent-ink:#064e57;
+  --ok:#2f8f4e; --warn:#b5730b; --crit:#c0392b; --info:#2d6fb3;
+  --code-bg:#0f1b22; --code-fg:#cfe6ea; --out-bg:#0b2a1e; --out-fg:#cde9d8;
+  --grad:linear-gradient(135deg,#0b7c8b,#17a3b5);
+  --shadow:0 1px 2px rgba(18,38,48,.05),0 2px 10px rgba(18,38,48,.05);
+  --shadow-lg:0 8px 30px rgba(18,38,48,.12);
+  --r-sm:7px; --r:11px; --r-lg:16px;
+  --f-head:"Archivo","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-2:#38c9da; --accent-weak:#10323a; --accent-ink:#8fe3ec;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f; --info:#5a9fe0;
+  --code-bg:#070d12; --code-fg:#cfe6ea; --out-bg:#08160f; --out-fg:#bfe6cf;
+  --grad:linear-gradient(135deg,#1796a6,#2bc0d2);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 2px 12px rgba(0,0,0,.35);
+  --shadow-lg:0 10px 36px rgba(0,0,0,.5); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a1015; --surface:#111a21; --surface-2:#16222b; --line:#243139;
+  --fg:#e9eff3; --muted:#93a3af; --faint:#5f6f7c;
+  --accent:#2bb6c6; --accent-2:#38c9da; --accent-weak:#10323a; --accent-ink:#8fe3ec;
+  --code-bg:#070d12; --code-fg:#cfe6ea; --out-bg:#08160f; --out-fg:#bfe6cf;
+  --ok:#4bbf6e; --warn:#e0a030; --crit:#e5604f; --info:#5a9fe0;
+  --grad:linear-gradient(135deg,#1796a6,#2bc0d2);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 2px 12px rgba(0,0,0,.35);
+  --shadow-lg:0 10px 36px rgba(0,0,0,.5); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);line-height:1.2;margin:0;word-break:keep-all;text-wrap:balance}
+a{color:var(--accent)}
+code,.mono{font-family:var(--f-mono)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top bar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:940px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-head);font-weight:700;font-size:1rem}
+.brand .mk{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--grad);color:#fff}
+.sp{margin-left:auto}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:7px;padding:7px 12px;cursor:pointer;font-family:var(--f-body);font-size:.82rem;font-weight:600;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--accent);color:var(--fg)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* layout */
+.wrap{max-width:940px;margin:0 auto;padding:30px 18px 80px}
+.doc-title{font-size:clamp(1.7rem,4vw,2.5rem);font-weight:800;letter-spacing:-.02em;margin:.4rem 0 .5rem}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+.docmeta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.docmeta span{font-size:.78rem;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 10px;color:var(--muted)}
+.docmeta b{color:var(--fg)}
+
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin:24px 0;box-shadow:var(--shadow)}
+.toc h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px}
+.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}
+@media(max-width:640px){.toc ol{columns:1}}
+.toc li{margin-bottom:5px}
+.toc a{color:var(--fg);text-decoration:none;font-size:.9rem}
+.toc a:hover{color:var(--accent)}
+
+section.sec{margin-top:40px;scroll-margin-top:72px}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.sec-h .n{font-family:var(--f-mono);color:#fff;background:var(--grad);font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:var(--r-sm)}
+.sec-h h2{font-size:clamp(1.3rem,2.6vw,1.6rem);font-weight:800;letter-spacing:-.01em}
+h3.sub{font-size:1.1rem;margin:26px 0 10px;color:var(--accent-ink)}
+h4.step{font-size:.98rem;margin:20px 0 8px}
+p{margin:0 0 12px}
+ul,ol{padding-left:22px}
+li{margin-bottom:6px}
+
+/* callouts */
+.callout{border-radius:var(--r);padding:13px 16px;margin:16px 0;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2)}
+.callout .ct{font-weight:700;display:block;margin-bottom:3px}
+.callout.warn{background:color-mix(in srgb,var(--crit) 10%,transparent);border-color:color-mix(in srgb,var(--crit) 35%,var(--line));border-left:4px solid var(--crit)}
+.callout.warn .ct{color:var(--crit)}
+.callout.note{background:var(--accent-weak);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));border-left:4px solid var(--accent)}
+.callout.note .ct{color:var(--accent-ink)}
+.callout.tip{background:color-mix(in srgb,var(--ok) 10%,transparent);border-color:color-mix(in srgb,var(--ok) 35%,var(--line));border-left:4px solid var(--ok)}
+.callout.tip .ct{color:var(--ok)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin:16px 0;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--surface-2);font-family:var(--f-head);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+tbody tr:last-child td{border-bottom:0}
+td b{color:var(--accent-ink)}
+.sev{font-family:var(--f-mono);font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.sev.c{background:color-mix(in srgb,var(--crit) 16%,transparent);color:var(--crit)}
+.sev.h{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.sev.m{background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info)}
+.sev.l{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+
+/* tool step */
+.tool-step{border:1px solid var(--line);border-radius:var(--r);margin:16px 0;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.ts-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 15px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.ts-head code{font-size:.92rem;font-weight:700;color:var(--accent-ink)}
+.ts-head .purpose{font-size:.86rem;color:var(--muted)}
+.ts-head a{margin-left:auto;font-size:.76rem;text-decoration:none;font-weight:600}
+.ts-body{padding:13px 15px}
+.lbl{display:inline-block;font-family:var(--f-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin-bottom:5px;font-weight:600}
+pre{margin:0 0 12px;border-radius:var(--r-sm);padding:11px 13px;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-height:1.55;white-space:pre}
+pre.cmd{background:var(--code-bg);color:var(--code-fg)}
+pre.cmd::before{content:"$ ";color:var(--accent-2)}
+pre.out{background:var(--out-bg);color:var(--out-fg);border:1px solid color-mix(in srgb,var(--ok) 25%,transparent)}
+.ts-note{font-size:.84rem;color:var(--muted);margin:0;padding:9px 11px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--info)}
+.ts-note b{color:var(--fg)}
+
+/* network diagram (reused) */
+.tb-topo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin:16px 0;overflow-x:auto}
+.tb-svg{width:100%;min-width:720px;height:auto;display:block}
+.tb-svg text{font-family:var(--f-body);fill:var(--fg)}
+.tb-svg .mut{fill:var(--muted)} .tb-svg .acc{fill:var(--accent)} .tb-svg .mono{font-family:var(--f-mono)}
+.tb-svg line{stroke-width:1.5}
+.tb-legend{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.tb-legend span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}
+.lg-grad{width:22px;height:12px;border-radius:3px;background:var(--grad)}
+.lg-solid{width:24px;height:2px;background:var(--accent)}
+.lg-dash{width:24px;height:0;border-top:2px dashed var(--faint)}
+.lg-tap{font-family:var(--f-mono);font-size:.62rem;font-style:normal;border:1px solid var(--accent);color:var(--accent);border-radius:3px;padding:1px 5px}
+
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:680px){.cols2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow)}
+.card h4{font-size:1rem;margin-bottom:8px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+
+@media print{
+  .topbar,.no-print{display:none!important}
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:0}
+  section.sec{break-inside:avoid-page}
+  .tool-step,.tbl-wrap,.callout{break-inside:avoid}
+  pre.cmd{background:#f3f3f3;color:#111;border:1px solid #ccc}
+  pre.out{background:#f6fbf6;color:#111;border:1px solid #bcd}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="in">
+    <div class="brand"><span class="mk">⊕</span> 평가 계획서 가이드</div>
+    <div class="sp"></div>
+    <a class="btn" href="index.html">← 빌더</a>
+    <a class="btn" href="index.html#testbed">테스트베드</a>
+    <button class="btn" id="themeBtn" type="button">◐ 테마</button>
+    <button class="btn pri" id="printBtn" type="button">⬇ 인쇄 / PDF</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">SaMD · SiMD Penetration Testing — Worked Example</span>
+  <h1 class="doc-title">의료기기 소프트웨어 보안 평가 계획서 — 상세 실무 가이드</h1>
+  <p style="color:var(--muted);max-width:68ch">초보 평가자도 순서대로 따라 할 수 있도록, 하나의 대표 대상(PACS·영상 뷰어 SaMD)을 기준으로 전체 침투 테스트 절차를 각 툴의 <b>실행 예</b>와 <b>예상 결과</b>까지 포함해 기술합니다. SiMD(내장형) 적용 차이는 각 절에서 함께 안내합니다.</p>
+  <div class="docmeta">
+    <span>버전 <b>1.0</b></span><span>대상 예시 <b>PACS·영상 뷰어 (SaMD)</b></span>
+    <span>분류 <b>SaMD / SiMD</b></span><span>용도 <b>승인된 격리 평가 전용</b></span>
+  </div>
+
+  <div class="callout warn">
+    <span class="ct">⚠️ 승인 및 안전 전제 (가장 먼저 읽으세요)</span>
+    본 가이드의 모든 절차는 <b>서면 권한(Rules of Engagement)이 확보된 격리 테스트베드</b>와 <b>합성·비식별 데이터</b>에서만 수행합니다. 실제 사용 중이거나 환자에게 연결된 의료기기에 대한 테스트는 환자 안전에 직접적 위험을 주므로 금지됩니다. SiMD/이식형의 실동작 테스트는 안전 담당자 승인과 하드웨어 안전장치를 전제로 합니다. 모든 예시의 IP·호스트명(`10.10.0.x`, `*.lab.local`)·출력은 교육용 가상 값입니다.
+  </div>
+
+  <nav class="toc">
+    <h2>목차</h2>
+    <ol>
+      <li><a href="#howto">이 문서 사용법 (초보자 안내)</a></li>
+      <li><a href="#intro">SaMD / SiMD 소개</a></li>
+      <li><a href="#scope">평가 대상 프로파일 (예제)</a></li>
+      <li><a href="#network">테스트 환경 네트워크 구성</a></li>
+      <li><a href="#proc">테스트 절차 (단계별 · 툴 예시)</a></li>
+      <li><a href="#report">발견 보고 · 위해도 산정</a></li>
+      <li><a href="#standards">표준 · 규제 매핑표</a></li>
+      <li><a href="#appendix">부록 — 체크리스트 · 용어</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section class="sec" id="howto">
+    <div class="sec-h"><span class="n">1</span><h2>이 문서 사용법 (초보자 안내)</h2></div>
+    <p>이 문서는 위에서 아래로 순서대로 수행하도록 구성되어 있습니다. 각 단계는 <b>목적 → 준비 → 실행(명령) → 예상 결과 → 해석</b>의 흐름을 따릅니다.</p>
+    <div class="cols2">
+      <div class="card"><h4>준비물</h4><ul>
+        <li>Kali Linux + MedPen 툴셋 (<a href="index.html#catalog">카탈로그</a> 참조, <code>install-medpen-tools.sh</code>로 설치)</li>
+        <li>격리된 테스트베드 (본문 4장 구성)</li>
+        <li>대상에 대한 서면 테스트 권한·범위 문서</li>
+        <li>발견 기록용 노트·스크린샷 도구</li>
+      </ul></div>
+      <div class="card"><h4>사전 지식 (최소)</h4><ul>
+        <li>리눅스 터미널 기본 사용</li>
+        <li>IP·포트·TCP/UDP·DNS 개념</li>
+        <li>HTTP 요청/응답 기초</li>
+        <li>없어도 각 단계의 "초보자 메모"로 보완 가능</li>
+      </ul></div>
+    </div>
+    <div class="callout note"><span class="ct">기호 안내</span>
+      <code>$ ...</code> 는 터미널에 입력하는 <b>명령</b>, 초록 상자는 <b>예상 결과(발췌)</b>입니다. 실제 값은 대상마다 다릅니다. 각 단계 하단의 파란 메모는 결과를 어떻게 읽는지 설명합니다.</div>
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="intro">
+    <div class="sec-h"><span class="n">2</span><h2>SaMD / SiMD 소개</h2></div>
+    <p><b>SaMD(Software as a Medical Device)</b>는 하드웨어와 독립적으로 의료 목적을 수행하는 소프트웨어입니다(예: AI 진단 앱, 분석 클라우드, PACS 영상 뷰어). <b>SiMD(Software in a Medical Device)</b>는 물리 의료기기의 일부로 동작하는 내장 소프트웨어입니다(예: 인퓨전 펌프 펌웨어, 환자 모니터, 이식형 기기).</p>
+    <p>둘은 "의료 소프트웨어"라는 점은 같지만 <b>공격 표면과 안전 영향이 다르므로</b> 테스트 전략도 달라집니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>관점</th><th>SaMD (독립형)</th><th>SiMD (내장형)</th></tr></thead>
+      <tbody>
+        <tr><td><b>주 공격 표면</b></td><td>웹/API, 인증·세션, 클라우드 설정, 모바일 저장소, 서버 로직</td><td>펌웨어, 디버그 포트(UART/JTAG), 무선 프로토콜, 부트체인, 센서/액추에이터 경로</td></tr>
+        <tr><td><b>핵심 단계</b></td><td>정찰 → 웹/API → 인증·암호 → 프로토콜</td><td>펌웨어 추출/분석 → 무선·BLE → 프로토콜 퍼징 → 물리 인터페이스</td></tr>
+        <tr><td><b>안전 영향</b></td><td>데이터 무결성·가용성 (오진, PHI 유출)</td><td>직접적 환자 위해 (용량 변조, 정지) — <b>격리 벤치 필수</b></td></tr>
+        <tr><td><b>대표 표준</b></td><td>FDA Premarket, OWASP ASVS/MASVS, HIPAA</td><td>IEC 62304, AAMI TIR57, IEC 81001-5-1, ISO 14971</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout tip"><span class="ct">이 가이드의 범위</span>본문 5장은 SaMD(PACS 뷰어) 기준으로 상세히 전개하고, 각 절 끝에 <b>“SiMD 적용”</b> 메모로 내장형 차이(펌웨어·무선·하드웨어)를 안내합니다.</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="scope">
+    <div class="sec-h"><span class="n">3</span><h2>평가 대상 프로파일 (예제)</h2></div>
+    <p>이 가이드는 다음 대표 프로파일을 대상으로 합니다. (여러분의 실제 대상에 맞춰 값을 바꿔 적용하세요.)</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>항목</th><th>값</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td>기기 분류</td><td><b>SaMD</b></td><td>독립형 의료 소프트웨어</td></tr>
+        <tr><td>제품 유형</td><td>PACS · 의료영상 뷰어</td><td>DICOM 영상 저장·조회·판독 지원</td></tr>
+        <tr><td>플랫폼</td><td>웹 · 클라우드 + 데스크톱 뷰어</td><td>브라우저 포털 + 설치형 뷰어</td></tr>
+        <tr><td>연결성</td><td>IP (Wi-Fi/이더넷)</td><td>병원 네트워크 연결</td></tr>
+        <tr><td>의료 프로토콜</td><td>DICOM</td><td>영상 전송·조회 (포트 104/11112)</td></tr>
+        <tr><td>데이터</td><td>PHI 처리</td><td>환자 식별정보 포함 (테스트는 합성 데이터)</td></tr>
+        <tr><td>노출</td><td>인터넷 노출 (원격 판독 포털)</td><td>외부 접근 경로 존재</td></tr>
+        <tr><td>테스트 대상(가상)</td><td class="mono">pacs.lab.local / 10.10.0.20</td><td>격리 테스트베드 내 가상 호스트</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout note"><span class="ct">빌더로 내 프로파일 만들기</span><a href="index.html#builder">방법론 빌더</a>에서 대상 특성을 선택하면 이 가이드의 단계 구성·툴 조합·권장 랩 구성이 자동으로 맞춰집니다.</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="network">
+    <div class="sec-h"><span class="n">4</span><h2>테스트 환경 네트워크 구성</h2></div>
+    <p>평가 전 <b>격리된 테스트베드</b>를 먼저 구축합니다. 핵심은 임상·운영망과의 완전 분리, 외부는 통제 게이트웨이로만, 전 구간 트래픽 캡처입니다.</p>
+    <div class="tb-topo">
+      <svg class="tb-svg" viewBox="0 0 900 420" role="img" aria-label="테스트베드 네트워크 토폴로지">
+        <defs><linearGradient id="fwg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/></linearGradient></defs>
+        <ellipse cx="450" cy="38" rx="122" ry="27" fill="var(--surface-2)" stroke="var(--faint)" stroke-dasharray="4 4"/>
+        <text class="mut" x="450" y="43" text-anchor="middle" font-size="14">🌐 인터넷 / 클라우드</text>
+        <line x1="450" y1="65" x2="450" y2="90" stroke="var(--faint)" stroke-dasharray="4 4"/>
+        <rect x="352" y="90" width="196" height="34" rx="7" fill="var(--surface-2)" stroke="var(--accent)" stroke-dasharray="5 4"/>
+        <text class="mut" x="450" y="112" text-anchor="middle" font-size="13">통제 프록시 / NAT · 기본 차단</text>
+        <line x1="450" y1="124" x2="450" y2="148" stroke="var(--accent)"/>
+        <rect x="30" y="148" width="840" height="46" rx="9" fill="url(#fwg)"/>
+        <text x="450" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">🛡 LAB 방화벽 / 라우터 · VLAN 간 통제 · 전수 로깅</text>
+        <line x1="450" y1="194" x2="450" y2="222" stroke="var(--accent)"/>
+        <line x1="127" y1="222" x2="763" y2="222" stroke="var(--accent)"/>
+        <line x1="127" y1="222" x2="127" y2="248" stroke="var(--accent)"/>
+        <line x1="339" y1="222" x2="339" y2="248" stroke="var(--accent)"/>
+        <line x1="551" y1="222" x2="551" y2="248" stroke="var(--accent)"/>
+        <line x1="763" y1="222" x2="763" y2="248" stroke="var(--accent)"/>
+        <rect x="769" y="228" width="36" height="16" rx="3" fill="var(--surface)" stroke="var(--accent)"/>
+        <text class="mono acc" x="787" y="240" text-anchor="middle" font-size="10">TAP</text>
+        <rect x="30" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="44" y="274" font-size="11">VLAN 10</text><text x="44" y="296" font-size="15" font-weight="700">공격자</text>
+        <text class="mut" x="44" y="320" font-size="12">Kali + MedPen 툴셋</text><text class="mut" x="44" y="338" font-size="12">타깃·시뮬레이터로만</text>
+        <rect x="242" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="256" y="274" font-size="11">VLAN 20</text><text x="256" y="296" font-size="15" font-weight="700">타깃 (DUT)</text>
+        <text class="mut" x="256" y="320" font-size="12">대상 SaMD / SiMD</text><text class="mut" x="256" y="338" font-size="12">필요 포트·스냅샷</text>
+        <rect x="454" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="468" y="274" font-size="11">VLAN 30</text><text x="468" y="296" font-size="15" font-weight="700">시뮬레이터</text>
+        <text class="mut" x="468" y="320" font-size="12">DICOM·HL7·MQTT</text><text class="mut" x="468" y="338" font-size="12">PACS / EHR 모사</text>
+        <rect x="666" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="680" y="274" font-size="11">VLAN 40</text><text x="680" y="296" font-size="15" font-weight="700">관리 · 캡처</text>
+        <text class="mut" x="680" y="320" font-size="12">pcap · SIEM</text><text class="mut" x="680" y="338" font-size="12">점프호스트 전용</text>
+      </svg>
+      <div class="tb-legend">
+        <span><i class="lg-grad"></i>방화벽 / 라우터</span>
+        <span><i class="lg-solid"></i>LAB 내부 라우팅 (VLAN 버스)</span>
+        <span><i class="lg-dash"></i>격리 경계 · 통제 게이트웨이(선택)</span>
+        <span><i class="lg-tap">TAP</i>트래픽 캡처 지점 (TAP/SPAN)</span>
+      </div>
+    </div>
+    <h3 class="sub">구축 체크리스트</h3>
+    <ul>
+      <li><b>세그먼트 분리</b> — 공격자(VLAN10)·타깃(VLAN20)·시뮬레이터(VLAN30)·관리/캡처(VLAN40)를 VLAN으로 분리하고 방화벽에서 허용 규칙만 개방.</li>
+      <li><b>외부 차단</b> — 기본 아웃바운드 차단. 업데이트/클라우드 연동 테스트가 필요하면 통제 프록시로만 허용하고 전수 로깅.</li>
+      <li><b>가시성</b> — 관리 VLAN에 TAP/SPAN으로 전 구간 pcap 수집 (`tcpdump`/`tshark`).</li>
+      <li><b>합성 데이터</b> — 시뮬레이터(Orthanc 등)에 합성 DICOM/환자 레코드만 적재.</li>
+      <li><b>복원성</b> — 타깃 VM 스냅샷, 구성 문서화, 킬스위치(전원/링크 차단) 준비.</li>
+    </ul>
+    <div class="callout note"><span class="ct">SiMD 적용</span>내장형은 위 구성에 <b>Faraday 차폐 공간</b>(BLE/RF), <b>하드웨어 벤치</b>(UART·JTAG·플래시), <b>모의 부하(dummy load)</b>를 추가합니다. 자세한 분기는 <a href="index.html#testbed">테스트베드 섹션</a> 참조.</div>
+  </section>
+
+  <!-- 5 -->
+  <section class="sec" id="proc">
+    <div class="sec-h"><span class="n">5</span><h2>테스트 절차 (단계별 · 툴 예시)</h2></div>
+    <p>아래 7단계를 순서대로 진행합니다. 각 단계는 목적 → 대표 툴(실행 예 + 예상 결과 + 초보자 메모) → SiMD 적용 순입니다. 모든 명령은 격리 테스트베드의 가상 대상(<code>10.10.0.20</code>)을 예로 듭니다.</p>
+
+    <h3 class="sub">5.1 정찰 · OSINT — 대상의 윤곽 파악</h3>
+    <p><b>목적:</b> 대상의 호스트·서비스·기술 스택·외부 노출을 비침투적으로 파악해 이후 단계 범위를 정합니다.</p>
+    <div class="tool-step">
+      <div class="ts-head"><code>nmap</code><span class="purpose">살아있는 호스트 탐색</span><a href="tool.html#nmap">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">nmap -sn 10.10.0.0/24</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">Nmap scan report for pacs.lab.local (10.10.0.20)
+Host is up (0.00032s latency).
+Nmap scan report for sim.lab.local (10.10.0.30)
+Host is up (0.00041s latency).
+Nmap done: 256 IP addresses (2 hosts up)</pre>
+        <p class="ts-note"><b>초보자 메모:</b> <code>-sn</code>은 포트를 열지 않고 "누가 켜져 있는지"만 봅니다. 대상 IP(10.10.0.20)가 살아있음을 확인했으니 다음은 이 호스트를 자세히 봅니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>whatweb</code><span class="purpose">웹 기술 스택 식별</span><a href="tool.html#whatweb">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">whatweb -a 3 https://pacs.lab.local</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">https://pacs.lab.local [200 OK]
+Country: RESERVED, HTTPServer: nginx/1.24.0,
+X-Powered-By: Express, JQuery[3.5.1], HTML5,
+Title: PACS Web Viewer</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 서버(nginx)·프레임워크(Express)·라이브러리 버전(jQuery 3.5.1)이 보입니다. 구버전 라이브러리는 5.4 웹 단계에서 알려진 취약점과 대조합니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>wafw00f</code><span class="purpose">웹 방화벽 탐지</span><a href="tool.html#wafw00f">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">wafw00f https://pacs.lab.local</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">[*] Checking https://pacs.lab.local
+[+] No WAF detected by the generic detection</pre>
+        <p class="ts-note"><b>초보자 메모:</b> WAF가 없으면 이후 웹 테스트가 차단 없이 진행됩니다. WAF가 있으면 탐지·차단을 고려해 속도·페이로드를 조정합니다.</p>
+      </div>
+    </div>
+    <div class="callout note"><span class="ct">SiMD 적용</span>내장형은 네트워크 정찰 대신 <b>제조사 문서·펌웨어 다운로드·FCC ID·공개 CVE</b> 수집이 중심입니다. 무선 기기는 <code>kismet</code>으로 주변 신호를 식별합니다.</div>
+
+    <h3 class="sub">5.2 탐지 · 스캐닝 — 서비스와 알려진 취약점</h3>
+    <p><b>목적:</b> 열린 포트·서비스 버전을 정밀 식별하고, 알려진 취약점·설정 오류의 1차 목록을 만듭니다.</p>
+    <div class="tool-step">
+      <div class="ts-head"><code>nmap</code><span class="purpose">포트·버전·스크립트 스캔</span><a href="tool.html#nmap">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">nmap -sV -sC -p- --open 10.10.0.20</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">PORT      STATE SERVICE    VERSION
+22/tcp    open  ssh        OpenSSH 9.6
+104/tcp   open  dicom?
+443/tcp   open  ssl/http   nginx 1.24.0
+8042/tcp  open  http       Orthanc DICOM server
+11112/tcp open  dicom?</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 104/11112(DICOM)·8042(Orthanc 관리) 포트가 보입니다 → 5.3에서 DICOM 프로토콜을, 8042 관리 UI는 5.4에서 점검합니다. <code>-p-</code>는 전체 65535 포트를 봅니다(느릴 수 있음).</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>nuclei</code><span class="purpose">템플릿 기반 취약점 스캔</span><a href="tool.html#nuclei">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">nuclei -u https://pacs.lab.local -severity medium,high,critical</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">[tls-version] [ssl] [info] pacs.lab.local:443
+[missing-sri] [http] [info] https://pacs.lab.local
+[exposed-swagger] [http] [medium] https://pacs.lab.local/api-docs
+[orthanc-default-login] [http] [high] 10.10.0.20:8042</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 각 줄이 하나의 발견 후보입니다. <code>[high]</code> Orthanc 기본 로그인, 노출된 API 문서(Swagger)는 우선 검증 대상입니다. 이 목록을 그대로 믿지 말고 5.4~5.6에서 수동 확인합니다.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">5.3 프로토콜 · 트래픽 분석 — DICOM 보안</h3>
+    <p><b>목적:</b> 의료 프로토콜(DICOM)의 인증 부재·평문 전송·정보 노출을 확인합니다. PACS의 핵심 위험 영역입니다.</p>
+    <div class="tool-step">
+      <div class="ts-head"><code>dcmtk · echoscu</code><span class="purpose">DICOM 연결·인증 확인</span><a href="tool.html#dcmtk">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">echoscu -v 10.10.0.20 104</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">I: Requesting Association
+I: Association Accepted (Max Send PDV: 16372)
+I: Sending Echo Request (MsgID 1)
+I: Received Echo Response (Success)
+I: Releasing Association</pre>
+        <p class="ts-note"><b>초보자 메모:</b> "Association Accepted"가 <b>자격증명 없이</b> 떴다면, 누구나 이 DICOM 노드와 통신할 수 있다는 뜻입니다(인증 부재). 이는 보고 대상 발견입니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>dcmtk · findscu</code><span class="purpose">비인증 환자정보 조회 점검</span><a href="tool.html#dcmtk">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예 (합성 데이터 대상)</div><pre class="cmd">findscu -v -S -k QueryRetrieveLevel=STUDY -k PatientName="*" 10.10.0.20 104</pre>
+        <div class="lbl">예상 결과 (발췌 · 가상 데이터)</div><pre class="out">I: Association Accepted
+I: Find Response: 1 (Pending)
+I:   (0010,0010) PN [TEST^SYNTHETIC-001]   # PatientName
+I:   (0008,0050) SH [ACC000123]            # AccessionNumber
+I: Final Find Response: Success</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 인증 없이 환자명(PatientName) 등 레코드가 반환되면 <b>정보 노출</b>입니다. 테스트는 반드시 합성 데이터에서만 하며, 실제 PHI가 반환되는 운영 시스템에서는 수행하지 않습니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>tshark</code><span class="purpose">평문 전송 여부 관찰</span><a href="tool.html#tshark">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">tshark -i eth0 -f "tcp port 104" -Y dicom -T fields -e dicom.command</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">1   (A-ASSOCIATE-RQ)
+1   (A-ASSOCIATE-AC)
+0x0030  C-ECHO-RQ
+0x8030  C-ECHO-RSP</pre>
+        <p class="ts-note"><b>초보자 메모:</b> DICOM 내용이 <b>평문</b>으로 보이면 전송 암호화(TLS) 미적용입니다. 네트워크를 가로채는 공격자가 영상·환자정보를 볼 수 있다는 의미입니다.</p>
+      </div>
+    </div>
+    <div class="callout warn"><span class="ct">주의 — C-STORE 쓰기 테스트</span>임의 객체 전송(C-STORE) 허용 여부 점검은 저장소를 변경할 수 있으므로 <b>반드시 격리 시뮬레이터(Orthanc 등)</b>에서, 스냅샷 후 수행합니다.</div>
+
+    <h3 class="sub">5.4 웹 · API 테스트</h3>
+    <p><b>목적:</b> 웹 포털·관리 UI·REST API의 인증·인가·입력검증 결함을 찾습니다.</p>
+    <div class="tool-step">
+      <div class="ts-head"><code>nikto</code><span class="purpose">웹 서버 설정 점검</span><a href="tool.html#nikto">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">nikto -h https://pacs.lab.local</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">+ Server: nginx/1.24.0
++ The X-Content-Type-Options header is not set.
++ Missing: Strict-Transport-Security header.
++ /api-docs/: Swagger UI found (API documentation exposed).</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 보안 헤더 누락·노출된 문서가 보입니다. 각 항목을 "왜 위험한가(영향)"와 함께 기록합니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>ffuf</code><span class="purpose">숨은 경로 탐색</span><a href="tool.html#ffuf">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">ffuf -u https://pacs.lab.local/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,301,403</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">admin                   [Status: 200]
+api                     [Status: 301]
+backup                  [Status: 403]
+api-docs                [Status: 200]</pre>
+        <p class="ts-note"><b>초보자 메모:</b> <code>/admin</code>·<code>/backup</code> 같은 경로가 노출되면 다음에 접근 통제를 점검합니다. 403도 "존재하지만 차단"이라 의미가 있습니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>Burp Suite</code><span class="purpose">인증·인가·세션 (수동)</span><a href="tool.html#burpsuite">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">절차 (수동)</div>
+        <ol style="margin:0 0 10px">
+          <li>브라우저 프록시를 Burp(127.0.0.1:8080)로 지정, Burp CA 신뢰 등록</li>
+          <li>로그인 후 한 요청을 Repeater로 보냄: <code>GET /api/studies?patientId=1001</code></li>
+          <li><code>patientId</code>를 다른 값(1002)으로 바꿔 재전송 → 응답 확인</li>
+        </ol>
+        <div class="lbl">예상 결과 — 취약 시 (IDOR)</div><pre class="out">HTTP/1.1 200 OK
+{ "patientId":1002, "name":"TEST^SYNTH-002",
+  "studies":[{"accession":"ACC000890"}] }</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 내 계정으로 <b>다른 환자(1002)</b> 데이터가 조회되면 접근통제 결함(IDOR)입니다. PHI가 걸린 SaMD에서 가장 흔하고 위험한 유형입니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>sqlmap</code><span class="purpose">SQL 인젝션 자동 점검</span><a href="tool.html#sqlmap">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예 (합성 DB 대상)</div><pre class="cmd">sqlmap -u "https://pacs.lab.local/api/studies?patientId=1" --batch --level=2</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">[INFO] testing 'patientId' parameter
+[INFO] parameter 'patientId' appears to be injectable
+[INFO] the back-end DBMS is PostgreSQL</pre>
+        <p class="ts-note"><b>초보자 메모:</b> "injectable"이 뜨면 인젝션 가능성이 있습니다. 데이터 추출(<code>--dump</code>)은 <b>승인된 범위·합성 DB</b>에서만, 영향 입증에 필요한 최소한으로 수행합니다.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">5.5 인증 · 암호 (전송 보안)</h3>
+    <p><b>목적:</b> PHI 전송 구간의 TLS 강도·인증서·약한 자격증명을 점검합니다.</p>
+    <div class="tool-step">
+      <div class="ts-head"><code>sslscan</code><span class="purpose">TLS 구성 점검</span><a href="tool.html#sslscan">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예</div><pre class="cmd">sslscan pacs.lab.local:443</pre>
+        <div class="lbl">예상 결과 (발췌)</div><pre class="out">  TLSv1.0   enabled   <-- 약한 프로토콜
+  TLSv1.3   enabled
+  Accepted  TLSv1.0  112 bits  TLS_RSA_WITH_3DES... <-- 약한 암호군
+  Certificate: expires 2026-11-01</pre>
+        <p class="ts-note"><b>초보자 메모:</b> TLS 1.0/약한 암호군이 켜져 있으면 PHI 전송이 약하게 보호됩니다. HIPAA·FDA 전송 보안 요구와 연결해 보고합니다.</p>
+      </div>
+    </div>
+    <div class="tool-step">
+      <div class="ts-head"><code>hydra</code><span class="purpose">약한/기본 자격증명 점검</span><a href="tool.html#hydra">상세 →</a></div>
+      <div class="ts-body">
+        <div class="lbl">실행 예 (관리 UI, 승인된 범위)</div><pre class="cmd">hydra -l admin -P /usr/share/wordlists/common-default.txt 10.10.0.20 http-get /</pre>
+        <div class="lbl">예상 결과 — 취약 시</div><pre class="out">[8042][http-get] host: 10.10.0.20  login: admin  password: orthanc</pre>
+        <p class="ts-note"><b>초보자 메모:</b> 기본 계정(admin/orthanc 등)이 남아 있으면 즉시 보고합니다. 계정 잠금 정책이 없는지도 함께 확인합니다. 무차별 시도는 승인·속도 제한을 지켜 수행합니다.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">5.6 취약점 검증 (통제된 PoC)</h3>
+    <p><b>목적:</b> 앞에서 식별한 후보를 <b>실제 영향으로 입증</b>합니다. 가용성·안전에 영향을 줄 수 있으므로 격리 환경에서, 최소 침습으로 수행합니다.</p>
+    <ul>
+      <li><b>IDOR(5.4)</b>: 서로 다른 테스트 계정으로 교차 조회가 되는 화면/응답을 캡처해 재현 절차와 함께 기록.</li>
+      <li><b>DICOM 비인증(5.3)</b>: <code>echoscu</code>/<code>findscu</code> 성공 로그 + 합성 레코드 반환 캡처로 정보 노출 입증.</li>
+      <li><b>알려진 CVE</b>: 식별된 구성요소 버전을 공개 취약점 DB와 대조. 공개 익스플로잇은 <b>격리 복제본</b>에서만 통제 실행(<code>metasploit</code>), 영향(예: 서비스 중단) 확인 후 즉시 스냅샷 복원.</li>
+    </ul>
+    <div class="callout warn"><span class="ct">안전 원칙</span>DoS·충돌을 유발할 수 있는 검증은 운영과 분리된 복제본에서만, 안전 담당자 승인 하에, 복원 계획을 준비한 뒤 수행합니다. SiMD의 액추에이터·용량 제어 경로는 모의 부하로 대체합니다.</div>
+
+    <h3 class="sub">5.7 리포팅 · 추적성</h3>
+    <p><b>목적:</b> 각 발견을 재현 가능하게 기록하고, 위해도를 산정하며, 규제 요구사항에 매핑합니다(6·7장).</p>
+    <ul>
+      <li>발견마다: 제목 · 영향 · 재현 절차 · 증거(명령/출력/스크린샷) · CVSS · AAMI TIR57 안전 위해도 · 권고.</li>
+      <li><b>SBOM 대조</b>: 구성요소 목록을 알려진 취약점과 대조(가능 시 <code>grype</code>/<code>trivy</code> 추가 설치).</li>
+      <li><a href="index.html#builder">빌더 → 평가 보고서 생성</a>으로 초안을 만들고 편집 페이지에서 본 가이드의 발견을 채워 DOCX/PDF로 제출.</li>
+    </ul>
+  </section>
+
+  <!-- 6 -->
+  <section class="sec" id="report">
+    <div class="sec-h"><span class="n">6</span><h2>발견 보고 · 위해도 산정</h2></div>
+    <h3 class="sub">발견 항목 양식</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>필드</th><th>작성 내용</th></tr></thead>
+      <tbody>
+        <tr><td>ID / 제목</td><td>F-001 / DICOM 서비스 비인증 접근</td></tr>
+        <tr><td>심각도</td><td>CVSS 점수 + 벡터, 아래 매트릭스의 안전 위해도</td></tr>
+        <tr><td>영향</td><td>기밀성/무결성/가용성 및 <b>환자 안전</b> 관점 서술</td></tr>
+        <tr><td>재현 절차</td><td>단계별 명령·입력 (제3자가 재현 가능하게)</td></tr>
+        <tr><td>증거</td><td>명령 출력·pcap·스크린샷 (합성 데이터)</td></tr>
+        <tr><td>권고</td><td>구체적 완화책 + 관련 표준 요구사항 ID</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="sub">위해도 매트릭스 (CVSS × 안전 영향 — AAMI TIR57 연계)</h3>
+    <p>보안 심각도(CVSS)와 <b>환자 안전 영향</b>을 함께 보아 우선순위를 정합니다. 안전 영향이 크면 CVSS가 낮아도 우선 처리합니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>안전 영향 \ 보안 심각도</th><th>낮음 (0–3.9)</th><th>중간 (4–6.9)</th><th>높음 (7–8.9)</th><th>치명 (9–10)</th></tr></thead>
+      <tbody>
+        <tr><td><b>경미</b> (불편)</td><td><span class="sev l">관찰</span></td><td><span class="sev l">낮음</span></td><td><span class="sev m">중간</span></td><td><span class="sev h">높음</span></td></tr>
+        <tr><td><b>중대</b> (오진·지연)</td><td><span class="sev l">낮음</span></td><td><span class="sev m">중간</span></td><td><span class="sev h">높음</span></td><td><span class="sev c">치명</span></td></tr>
+        <tr><td><b>심각</b> (영구 손상)</td><td><span class="sev m">중간</span></td><td><span class="sev h">높음</span></td><td><span class="sev c">치명</span></td><td><span class="sev c">치명</span></td></tr>
+        <tr><td><b>생명 위협</b></td><td><span class="sev h">높음</span></td><td><span class="sev c">치명</span></td><td><span class="sev c">치명</span></td><td><span class="sev c">치명</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout note"><span class="ct">예시 — F-001 (DICOM 비인증)</span>CVSS 7.5(높음) + 안전 영향 "중대(무결성 훼손 시 오진 가능)" → 매트릭스상 <span class="sev h">높음</span>. 권고: DICOM TLS(IHE ATNA)·노드 인증·네트워크 분리.</div>
+  </section>
+
+  <!-- 7 -->
+  <section class="sec" id="standards">
+    <div class="sec-h"><span class="n">7</span><h2>표준 · 규제 매핑표</h2></div>
+    <p>각 평가 활동을 주요 표준·규제 요구사항에 매핑합니다. 보고서의 추적성(traceability) 근거로 사용하세요.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>표준 / 규제</th><th>요구사항 요지</th><th>해당 단계 / 활동</th><th>산출물</th></tr></thead>
+      <tbody>
+        <tr><td><b>FDA</b> Premarket Cybersecurity (2023)</td><td>위협 모델링·SBOM·보안 테스트 증거 제출</td><td>전 단계, 특히 5.2·5.6·5.7</td><td>테스트 보고서·SBOM 대조표</td></tr>
+        <tr><td><b>FDA</b> Postmarket Cybersecurity</td><td>출시 후 취약점 관리·패치</td><td>5.2·5.7 (주기적 재평가)</td><td>취약점 추세·패치 계획</td></tr>
+        <tr><td><b>IEC 62304</b></td><td>SW 생명주기·안전등급(A/B/C)</td><td>3·5·6 (등급별 테스트 깊이)</td><td>안전등급별 테스트 범위</td></tr>
+        <tr><td><b>ISO 14971</b></td><td>의료기기 위험관리</td><td>6 (위해도 산정)</td><td>위험 분석·위해도 매트릭스</td></tr>
+        <tr><td><b>AAMI TIR57</b></td><td>보안 위험과 안전 위험 연계</td><td>6·7</td><td>보안-안전 위해도 매핑</td></tr>
+        <tr><td><b>IEC 81001-5-1</b></td><td>헬스 SW 보안 활동(생명주기)</td><td>전 단계</td><td>활동-요구사항 추적표</td></tr>
+        <tr><td><b>IEC 62443</b></td><td>네트워크 영역/도관 분리</td><td>4 (테스트베드)</td><td>네트워크 구성도·분리 근거</td></tr>
+        <tr><td><b>IEC 80001-1</b></td><td>의료 IT 네트워크 위험관리</td><td>4</td><td>테스트망 위험 평가</td></tr>
+        <tr><td><b>OWASP ASVS</b></td><td>웹/앱 보안 검증 표준</td><td>5.4·5.5</td><td>ASVS 체크리스트 결과</td></tr>
+        <tr><td><b>OWASP API Top 10</b></td><td>API 보안 (BOLA/IDOR 등)</td><td>5.4</td><td>API 테스트 결과(IDOR 등)</td></tr>
+        <tr><td><b>OWASP MASVS</b></td><td>모바일 앱 보안 (SaMD 앱)</td><td>5.4 (모바일 시)</td><td>모바일 검증 결과</td></tr>
+        <tr><td><b>MITRE ATT&CK</b></td><td>공격 기법 분류</td><td>5 (기법 매핑)</td><td>단계별 ATT&CK 매핑</td></tr>
+        <tr><td><b>HIPAA</b> Security Rule</td><td>PHI 기밀성·전송 보안 (미국)</td><td>5.3·5.4·5.5</td><td>전송 암호화·접근통제 결과</td></tr>
+        <tr><td><b>EU MDR/IVDR · MDCG 2019-16</b></td><td>EU 의료기기 사이버보안</td><td>전 단계</td><td>규제 대응 매핑</td></tr>
+        <tr><td><b>MFDS(식약처)</b> 의료기기 사이버보안 가이드</td><td>국내 허가 사이버보안 요구</td><td>전 단계</td><td>국내 제출용 매핑</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout tip"><span class="ct">활용 팁</span>발견 항목마다 이 표의 "표준/규제"를 태그로 달면, 규제 제출 시 "어떤 요구사항을 어떤 테스트로 충족/점검했는가"를 바로 제시할 수 있습니다.</div>
+  </section>
+
+  <!-- 8 -->
+  <section class="sec" id="appendix">
+    <div class="sec-h"><span class="n">8</span><h2>부록 — 체크리스트 · 용어</h2></div>
+    <div class="cols2">
+      <div class="card"><h4>평가 전 체크리스트</h4><ul>
+        <li>서면 테스트 권한·범위(RoE) 확보</li>
+        <li>격리 테스트베드 구축·검증 (4장)</li>
+        <li>합성 데이터 적재, 실제 PHI 제거 확인</li>
+        <li>타깃 스냅샷·복원 계획·킬스위치</li>
+        <li>안전 담당자 연락·승인(안전 영향 테스트)</li>
+        <li>로그/pcap 수집 경로 가동</li>
+      </ul></div>
+      <div class="card"><h4>평가 후 체크리스트</h4><ul>
+        <li>모든 발견 재현 절차·증거 정리</li>
+        <li>CVSS + 안전 위해도 산정(6장)</li>
+        <li>표준·규제 매핑(7장)</li>
+        <li>테스트 산출물 암호화 보관</li>
+        <li>계약 종료 시 데이터·접근 파기</li>
+        <li>보고서 생성·검토·제출</li>
+      </ul></div>
+    </div>
+    <h3 class="sub">용어</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>용어</th><th>뜻</th></tr></thead>
+      <tbody>
+        <tr><td>DICOM</td><td>의료영상 저장·전송 표준 프로토콜 (포트 104/11112)</td></tr>
+        <tr><td>PACS</td><td>의료영상 저장·전송 시스템 (뷰어·서버 포함)</td></tr>
+        <tr><td>PHI</td><td>보호대상 건강정보 (환자 식별정보)</td></tr>
+        <tr><td>IDOR / BOLA</td><td>식별자 조작으로 타인 데이터에 접근하는 인가 결함</td></tr>
+        <tr><td>RoE</td><td>Rules of Engagement — 테스트 범위·방법·권한 합의</td></tr>
+        <tr><td>SBOM</td><td>소프트웨어 구성요소 목록 (취약점 대조용)</td></tr>
+        <tr><td>DUT</td><td>Device Under Test — 테스트 대상 기기</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <footer>
+    MedPen Methodology · 승인된 보안 평가 전용 · 본 문서의 예시 값·출력은 교육용 가상 데이터입니다. 실제 평가는 대상의 RoE·안전 요건에 맞게 조정하세요.
+  </footer>
+</div>
+
+<script>
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+const tb=document.getElementById('themeBtn');
+let theme=null; try{theme=localStorage.getItem('mp-theme');}catch(e){}
+if(theme)document.documentElement.setAttribute('data-theme',theme);
+tb.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const sysDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const next=(cur==='dark'||(!cur&&sysDark))?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('mp-theme',next);}catch(e){}
+});
+</script>
+</body>
+</html>
