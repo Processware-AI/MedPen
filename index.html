@@ -162,6 +162,10 @@ section.band{padding-block:34px;scroll-margin-top:72px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .card-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .card-h h4{font-family:var(--f-mono);font-size:.98rem;font-weight:700}
+.card-h h4 a{color:var(--fg)}
+.card-h h4 a:hover{color:var(--accent)}
+.detail-link{margin-top:2px;font-size:.78rem;font-weight:600;color:var(--accent);text-decoration:none}
+.detail-link:hover{text-decoration:underline}
 .cat-pill{font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-weak);padding:2px 7px;border-radius:999px;font-weight:700}
 .card p.desc{font-size:.85rem;color:var(--muted);margin:0}
 .card .samd{font-size:.8rem;color:var(--fg);background:var(--surface-2);border-radius:var(--r-sm);padding:7px 9px;border-left:3px solid var(--accent)}
@@ -344,6 +348,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 </footer>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="tools-data.js"></script>
 <script>
 /* ---------------- DATA ---------------- */
 // phase ids
@@ -360,95 +365,7 @@ const PHASES = {
 };
 
 // tool catalog. inst=true means confirmed present on this host probe.
-const TOOLS = [
-  // recon
-  {id:"nmap",cat:"scan",ph:["scan","recon"],inst:true,desc:"포트·서비스·OS 탐지의 사실상 표준. NSE 스크립트로 취약점·프로토콜 핑거프린팅까지.",cmd:"nmap -sV -sC -p- --open 10.0.0.0/24",samd:"네트워크 연결 SaMD/SiMD의 노출 서비스와 의료 프로토콜 포트(DICOM 104, HL7 2575) 식별.",tags:["ip"]},
-  {id:"masscan",cat:"scan",ph:["scan"],inst:true,desc:"대규모 대역을 초고속으로 스캔하는 비동기 포트 스캐너.",cmd:"masscan 10.0.0.0/16 -p1-65535 --rate 1000",samd:"병원 네트워크 등 넓은 세그먼트에서 의료기기 자산을 신속 발견.",tags:["ip"]},
-  {id:"nuclei",cat:"scan",ph:["scan","web"],inst:true,desc:"템플릿 기반 취약점 스캐너. CVE·설정오류·노출을 YAML 규칙으로 탐지.",cmd:"nuclei -u https://app.target -severity high,critical",samd:"SaMD 웹/클라우드 자산의 알려진 취약점을 빠르게 트리아지.",tags:["ip","web"]},
-  {id:"openvas",cat:"scan",ph:["scan"],inst:true,desc:"종합 취약점 평가 스캐너(Greenbone). 인증 스캔·정책 점검.",cmd:"gvm-start   # 웹 UI 9392",samd:"사후시장 SaMD 인프라의 주기적 취약점 베이스라인.",tags:["ip"]},
-  {id:"theharvester",cat:"recon",ph:["recon"],inst:true,desc:"이메일·서브도메인·호스트 등 공개 출처 정보 수집(OSINT).",cmd:"theHarvester -d vendor.com -b all",samd:"제조사·클라우드 공급자 노출 자산과 담당자 식별.",tags:[]},
-  {id:"amass",cat:"recon",ph:["recon"],inst:true,desc:"심층 자산·서브도메인 매핑. 외부 공격표면 그래프화.",cmd:"amass enum -d vendor.com",samd:"SaMD 클라우드·API 엔드포인트의 외부 공격표면 전수화.",tags:[]},
-  {id:"spiderfoot",cat:"recon",ph:["recon"],inst:true,desc:"자동화 OSINT 수집·상관분석 플랫폼.",cmd:"spiderfoot -l 127.0.0.1:5001",samd:"벤더 생태계(노출 자격증명, 서드파티) 상관 분석.",tags:[]},
-  {id:"recon-ng",cat:"recon",ph:["recon"],inst:true,desc:"모듈형 웹 정찰 프레임워크.",cmd:"recon-ng -w samd",samd:"구조화된 정찰 워크플로로 자산 데이터 집계.",tags:[]},
-  {id:"dnsrecon",cat:"recon",ph:["recon"],inst:true,desc:"DNS 열거·영역전송·레코드 수집.",cmd:"dnsrecon -d vendor.com -a",samd:"API·업데이트 서버 등 숨은 호스트 발견.",tags:[]},
-  {id:"dnsenum",cat:"recon",ph:["recon"],inst:true,desc:"DNS 정보·서브도메인 브루트포스 수집.",cmd:"dnsenum vendor.com",samd:"SaMD 백엔드 명명 규칙에서 추가 자산 유추.",tags:[]},
-  {id:"fierce",cat:"recon",ph:["recon"],inst:true,desc:"DNS 정찰로 인접 네임스페이스 탐색.",cmd:"fierce --domain vendor.com",samd:"스테이징·개발 환경 등 비공개 엔드포인트 식별.",tags:[]},
-  {id:"whatweb",cat:"recon",ph:["recon","web"],inst:true,desc:"웹 기술 스택·프레임워크·버전 핑거프린팅.",cmd:"whatweb -a 3 https://app.target",samd:"SaMD 프런트엔드/서버 구성요소와 버전 식별.",tags:["web"]},
-  {id:"wafw00f",cat:"recon",ph:["recon","web"],inst:true,desc:"웹 방화벽(WAF) 존재·종류 탐지.",cmd:"wafw00f https://app.target",samd:"테스트 경로상의 보호 계층 파악으로 절차 조정.",tags:["web"]},
-  // traffic / protocol
-  {id:"wireshark",cat:"traffic",ph:["traffic"],inst:true,desc:"GUI 패킷 분석기. 프로토콜 디섹터로 심층 분석.",cmd:"wireshark &   # dicom/hl7 필터",samd:"DICOM·HL7·전용 프로토콜의 평문 전송·인증 결함 관찰.",tags:["ip","dicom","hl7","mqtt"]},
-  {id:"tshark",cat:"traffic",ph:["traffic"],inst:true,desc:"Wireshark의 CLI. 자동화·대용량 캡처에 적합.",cmd:"tshark -i eth0 -Y dicom -w cap.pcap",samd:"스크립트로 의료 프로토콜 세션을 추출·검증.",tags:["ip","dicom","hl7"]},
-  {id:"tcpdump",cat:"traffic",ph:["traffic"],inst:true,desc:"경량 패킷 캡처 도구. 장비·게이트웨이에서 사용.",cmd:"tcpdump -i eth0 port 104 -w dicom.pcap",samd:"대역폭이 제한된 임베디드 환경에서 트래픽 확보.",tags:["ip","dicom"]},
-  {id:"scapy",cat:"traffic",ph:["traffic","exploit","wireless"],inst:true,desc:"패킷 제작·조작·전송 파이썬 라이브러리. 프로토콜 퍼징 핵심.",cmd:"from scapy.all import *",samd:"전용/비공개 의료 프로토콜의 커스텀 퍼징·재전송 테스트.",tags:["ip","rf","prop","dicom"]},
-  {id:"ettercap",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"중간자(MITM) 공격·세션 가로채기 스위트 (dsniff/arpspoof 포함).",cmd:"arpspoof -t <dev> <gw>",samd:"격리 벤치에서 평문 프로토콜의 변조·가로채기 영향 입증.",tags:["ip"]},
-  {id:"mitmproxy",cat:"web",ph:["web","traffic"],inst:true,desc:"HTTP/S 가로채기 프록시. 스크립팅으로 트래픽 변조.",cmd:"mitmproxy --mode transparent",samd:"모바일 SaMD의 API 호출 가로채기·인증서 핀닝 검증.",tags:["web","mobile"]},
-  {id:"responder",cat:"traffic",ph:["traffic","cred"],inst:true,desc:"LLMNR/NBT-NS/mDNS 포이즈닝으로 자격증명 수집.",cmd:"responder -I eth0",samd:"병원 내부망 SaMD 서버의 인증 흐름 약점 검증(격리망).",tags:["ip"]},
-  {id:"snmpwalk",cat:"traffic",ph:["traffic","recon"],inst:true,desc:"SNMP로 장비 설정·자산 정보 열거.",cmd:"snmpwalk -v2c -c public <dev>",samd:"관리 인터페이스가 열린 의료기기 구성 노출 확인.",tags:["ip"]},
-  {id:"enum4linux",cat:"traffic",ph:["traffic","recon"],inst:true,desc:"SMB/Windows 공유·사용자·정책 열거.",cmd:"enum4linux -a <host>",samd:"Windows 기반 PACS/워크스테이션의 공유·계정 노출.",tags:["ip"]},
-  {id:"smbclient",cat:"traffic",ph:["traffic"],inst:true,desc:"SMB 공유 접근·파일 전송 클라이언트.",cmd:"smbclient -L //<host> -N",samd:"영상·리포트 공유의 익명 접근 가능성 확인.",tags:["ip"]},
-  // web
-  {id:"burpsuite",cat:"web",ph:["web"],inst:true,desc:"웹/API 테스트 통합 플랫폼. 프록시·스캐너·리피터·인트루더.",cmd:"burpsuite &",samd:"SaMD 웹/API의 인증·권한·입력검증 결함을 체계적으로 평가.",tags:["web","mobile"]},
-  {id:"sqlmap",cat:"web",ph:["web","exploit"],inst:true,desc:"SQL 인젝션 자동 탐지·추출.",cmd:"sqlmap -u 'https://app/api?id=1' --batch",samd:"PHI 저장 백엔드에 대한 인젝션으로 데이터 노출 위험 입증.",tags:["web","phi"]},
-  {id:"nikto",cat:"web",ph:["web","scan"],inst:true,desc:"웹 서버 설정오류·위험 파일 스캐너.",cmd:"nikto -h https://app.target",samd:"SaMD 서버의 노출 관리 페이지·구버전 식별.",tags:["web"]},
-  {id:"ffuf",cat:"web",ph:["web"],inst:true,desc:"초고속 웹 퍼저. 디렉터리·파라미터·vhost 탐색.",cmd:"ffuf -u https://app/FUZZ -w wordlist",samd:"숨은 API 엔드포인트·관리 경로 발견.",tags:["web"]},
-  {id:"gobuster",cat:"web",ph:["web"],inst:true,desc:"디렉터리·DNS·vhost 브루트포스.",cmd:"gobuster dir -u https://app -w list",samd:"문서화되지 않은 SaMD 리소스 열거.",tags:["web"]},
-  {id:"dirb",cat:"web",ph:["web"],inst:true,desc:"웹 콘텐츠 디렉터리 스캐너.",cmd:"dirb https://app.target",samd:"경량 디렉터리 탐색 대안.",tags:["web"]},
-  {id:"wpscan",cat:"web",ph:["web"],inst:true,desc:"WordPress 취약점·플러그인·사용자 스캐너.",cmd:"wpscan --url https://portal.target",samd:"환자 포털 등 CMS 기반 SaMD 자산 평가.",tags:["web"]},
-  {id:"sslscan",cat:"web",ph:["web","cred"],inst:true,desc:"TLS 구성·암호군·인증서 점검.",cmd:"sslscan app.target:443",samd:"PHI 전송 구간의 약한 TLS·만료 인증서 식별.",tags:["web","phi","ip"]},
-  {id:"sslyze",cat:"web",ph:["web","cred"],inst:true,desc:"정밀 TLS 분석기. 취약점·설정 자동 평가.",cmd:"sslyze app.target:443",samd:"전송 암호화 준수(FDA·HIPAA) 근거 자료 생성.",tags:["web","phi","ip"]},
-  // wireless / BLE
-  {id:"aircrack-ng",cat:"wireless",ph:["wireless"],inst:true,desc:"Wi-Fi 모니터링·캡처·WPA 핸드셰이크 크래킹 스위트.",cmd:"airodump-ng wlan0mon",samd:"Wi-Fi 연결 의료기기의 무선 보안·분리(segmentation) 검증.",tags:["ip"]},
-  {id:"kismet",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"무선 탐지·스니핑·디바이스 트래킹(Wi-Fi/BT/SDR).",cmd:"kismet -c wlan0mon",samd:"테스트 공간 내 미등록 무선 의료기기 발견.",tags:["ble","rf"]},
-  {id:"reaver",cat:"wireless",ph:["wireless"],inst:true,desc:"WPS 핀 브루트포스로 Wi-Fi 키 복구.",cmd:"reaver -i wlan0mon -b <bssid>",samd:"WPS가 켜진 기기 게이트웨이의 약점 입증.",tags:["ip"]},
-  {id:"bluetoothctl",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"BlueZ 제어 CLI. BLE 장치 스캔·페어링·연결.",cmd:"bluetoothctl scan on",samd:"BLE 웨어러블/이식형의 광고·페어링 보안 관찰.",tags:["ble"]},
-  {id:"gatttool",cat:"wireless",ph:["wireless","exploit"],inst:true,desc:"BLE GATT 서비스·특성 열거 및 읽기/쓰기.",cmd:"gatttool -b <MAC> -I",samd:"BLE 기기의 인증 없는 특성 쓰기(명령 주입) 검증.",tags:["ble"]},
-  {id:"hcitool",cat:"wireless",ph:["wireless","recon"],inst:true,desc:"저수준 Bluetooth 조회·장치 탐색.",cmd:"hcitool lescan",samd:"BLE 기기 식별·MAC 수집(프라이버시·랜덤화 점검).",tags:["ble"]},
-  {id:"spooftooph",cat:"wireless",ph:["wireless","exploit"],inst:true,desc:"Bluetooth 장치 정보 스푸핑.",cmd:"spooftooph -i hci0 -a <MAC>",samd:"BLE 신뢰·페어링 모델의 위조 내성 평가.",tags:["ble"]},
-  // firmware / embedded
-  {id:"binwalk",cat:"firmware",ph:["firmware"],inst:true,desc:"펌웨어 이미지 분석·파일시스템 추출·엔트로피 분석.",cmd:"binwalk -eM firmware.bin",samd:"SiMD 펌웨어에서 파일시스템·하드코딩 비밀 추출.",tags:["usb","prop"]},
-  {id:"radare2",cat:"firmware",ph:["firmware","exploit"],inst:true,desc:"역공학 프레임워크. 디스어셈블·디버그·패치.",cmd:"r2 -A firmware.elf",samd:"펌웨어 바이너리의 로직·인증 우회 경로 분석.",tags:["usb","prop"]},
-  {id:"sasquatch",cat:"firmware",ph:["firmware"],inst:true,desc:"변형 SquashFS 추출 유틸(binwalk 보조).",cmd:"sasquatch rootfs.squashfs",samd:"비표준 압축 펌웨어 루트FS 복원.",tags:["usb"]},
-  {id:"flashrom",cat:"firmware",ph:["firmware"],inst:true,desc:"SPI/플래시 칩 읽기·쓰기(하드웨어 프로그래머 연동).",cmd:"flashrom -p <prog> -r dump.bin",samd:"물리 접근 시 SiMD 플래시에서 펌웨어 직접 덤프.",tags:["usb"]},
-  {id:"objdump",cat:"firmware",ph:["firmware"],inst:true,desc:"바이너리 디스어셈블·섹션 분석(binutils).",cmd:"objdump -d firmware.elf",samd:"임베디드 바이너리의 함수·심볼 신속 검토.",tags:["usb"]},
-  {id:"strings",cat:"firmware",ph:["firmware","recon"],inst:true,desc:"바이너리 내 출력가능 문자열 추출.",cmd:"strings -n 8 firmware.bin",samd:"펌웨어의 자격증명·엔드포인트·디버그 문자열 발견.",tags:["usb","prop"]},
-  // exploitation
-  {id:"metasploit",cat:"exploit",ph:["exploit"],inst:true,desc:"익스플로잇·페이로드·포스트 모듈 프레임워크(msfconsole).",cmd:"msfconsole -q",samd:"확인된 취약점의 영향(안전 영향 포함)을 통제된 PoC로 입증.",tags:["ip","web"]},
-  // credential / crypto
-  {id:"hydra",cat:"cred",ph:["cred"],inst:true,desc:"네트워크 로그인 브루트포스(SSH/HTTP/RDP 등).",cmd:"hydra -L u.txt -P p.txt ssh://<host>",samd:"관리 인터페이스의 약한·기본 자격증명 검증.",tags:["ip","web"]},
-  {id:"john",cat:"cred",ph:["cred"],inst:true,desc:"John the Ripper. 해시 크래킹·규칙 기반 공격.",cmd:"john --wordlist=rock.txt hashes",samd:"펌웨어/DB에서 추출한 해시의 강도 평가.",tags:[]},
-  {id:"hashcat",cat:"cred",ph:["cred"],inst:true,desc:"GPU 가속 해시 크래킹.",cmd:"hashcat -m 0 -a 0 hashes rock.txt",samd:"대량 해시·강한 알고리즘의 현실적 크래킹 비용 산정.",tags:[]},
-  // --- recommended (not confirmed on this host) ---
-  {id:"dcmtk",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"DICOM 툴킷(storescu/findscu/echoscu). DICOM 노드와 직접 통신.",cmd:"echoscu <host> 104   # C-ECHO 연결 확인",samd:"DICOM 서비스의 인증 부재·C-STORE 남용·정보 열거 테스트.",tags:["dicom","ip"]},
-  {id:"mosquitto",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"MQTT 브로커·클라이언트(pub/sub). IoT 메시징 테스트.",cmd:"mosquitto_sub -h <broker> -t '#' -v",samd:"원격 모니터링 SiMD의 MQTT 토픽 무단 구독·발행 검증.",tags:["mqtt","ip"]},
-  {id:"frida",cat:"exploit",ph:["exploit","web"],inst:true,desc:"동적 계측 툴킷. 런타임 후킹·인증서 핀닝 우회.",cmd:"frida-ps -U   # USB 기기 프로세스 목록",samd:"모바일 SaMD의 핀닝 우회·런타임 로직 분석.",tags:["mobile"]},
-  {id:"apktool",cat:"exploit",ph:["firmware","exploit"],inst:true,desc:"안드로이드 APK 디컴파일·리빌드.",cmd:"apktool d app.apk -o out/",samd:"모바일 SaMD의 리소스·스몰리 코드·비밀 정적 분석.",tags:["mobile"]},
-  {id:"jadx",cat:"firmware",ph:["firmware"],inst:true,desc:"Dalvik 바이트코드를 Java로 디컴파일.",cmd:"jadx -d out/ app.apk",samd:"모바일 SaMD 앱 로직·하드코딩 키 검토.",tags:["mobile"]},
-  {id:"ghidra",cat:"firmware",ph:["firmware","exploit"],inst:true,desc:"NSA 역공학 스위트. 멀티아키 디컴파일.",cmd:"ghidra &   # GUI 프로젝트 생성",samd:"SiMD 펌웨어의 심층 역공학·취약점 식별.",tags:["usb","prop"]},
-  {id:"can-utils",cat:"traffic",ph:["traffic","exploit"],inst:true,desc:"CAN 버스 송수신·덤프(candump/cansend).",cmd:"candump can0   # 버스 트래픽 관찰",samd:"CAN 기반 의료 플랫폼의 버스 메시지 관찰·주입.",tags:["prop","usb"]},
-  {id:"volatility3",cat:"exploit",ph:["exploit","report"],inst:true,desc:"메모리 포렌식 프레임워크(vol).",cmd:"vol -f dump.raw windows.info",samd:"사후시장 사고 대응·메모리 내 PHI 잔존 확인.",tags:["phi"]},
-  {id:"objection",cat:"exploit",ph:["exploit"],inst:true,desc:"Frida 기반 런타임 모바일 탐색·핀닝 우회 자동화.",cmd:"objection -g <pkg> explore",samd:"모바일 SaMD의 핀닝 우회·로컬 저장소·메서드 후킹 신속 점검.",tags:["mobile"]},
-  // ===== metapackage: SDR / RF (하드웨어) =====
-  {id:"gnuradio",cat:"hardware",ph:["wireless","traffic"],inst:true,chk:"gnuradio-config-info",desc:"SDR 신호처리 프레임워크. 전용 무선 프로토콜의 복조·디코딩 플로우 구성.",cmd:"gnuradio-companion &",samd:"전용 RF로 통신하는 SiMD(텔레메트리·이식형)의 변조 방식 역설계.",tags:["rf","prop"]},
-  {id:"gqrx",cat:"hardware",ph:["wireless","recon"],inst:true,chk:"gqrx",desc:"SDR 수신·스펙트럼 분석 GUI.",cmd:"gqrx &",samd:"의료기기의 RF 방출 대역·채널 식별(정찰).",tags:["rf"]},
-  {id:"hackrf",cat:"hardware",ph:["wireless"],inst:true,chk:"hackrf_info",desc:"1MHz–6GHz SDR 송수신 하드웨어 도구모음.",cmd:"hackrf_info   # 기기 연결 확인",samd:"격리 벤치에서 전용 RF 신호 캡처·재전송(replay) 내성 검증.",tags:["rf","prop"]},
-  {id:"multimon-ng",cat:"hardware",ph:["wireless","traffic"],inst:true,chk:"multimon-ng",desc:"POCSAG·FLEX 등 디지털 모드 디코더.",cmd:"multimon-ng -a POCSAG1200 -",samd:"병원 호출(pager) 등 평문 텔레메트리의 정보 노출 확인.",tags:["rf"]},
-  {id:"inspectrum",cat:"hardware",ph:["wireless"],inst:true,chk:"inspectrum",desc:"캡처된 신호의 시각적 분석·심볼 추출.",cmd:"inspectrum capture.cf32",samd:"전용 RF의 패킷 구조·타이밍 역설계.",tags:["rf","prop"]},
-  {id:"rfcat",cat:"hardware",ph:["wireless","exploit"],inst:true,chk:"rfcat",desc:"서브-GHz(ISM) RF 송수신 제어(TI 칩셋).",cmd:"rfcat -r",samd:"ISM 대역 전용 프로토콜의 명령 주입·재전송 테스트.",tags:["rf","prop"]},
-  // ===== metapackage: RFID =====
-  {id:"proxmark3",cat:"hardware",ph:["wireless","exploit"],inst:true,chk:"proxmark3",desc:"RFID/NFC 분석·복제·에뮬레이션 플랫폼.",cmd:"proxmark3 /dev/ttyACM0",samd:"RFID 기반 접근제어·이식형 식별 태그의 복제·변조 내성 검증.",tags:["rf","prop"]},
-  // ===== metapackage: hardware (JTAG/UART/emulation/RE) =====
-  {id:"openocd",cat:"hardware",ph:["firmware"],inst:true,chk:"openocd",desc:"JTAG/SWD 온칩 디버깅·플래시 접근.",cmd:"openocd -f board.cfg",samd:"SiMD의 디버그 포트를 통한 펌웨어 덤프·메모리 접근(보호 여부 검증).",tags:["usb"]},
-  {id:"minicom",cat:"hardware",ph:["firmware","traffic"],inst:true,chk:"minicom",desc:"시리얼 터미널. UART 콘솔 접근.",cmd:"minicom -D /dev/ttyUSB0 -b 115200",samd:"의료기기 UART 콘솔의 인증 없는 셸·부트로그 노출 확인.",tags:["usb"]},
-  {id:"qemu-user",cat:"hardware",ph:["firmware","exploit"],inst:true,chk:"qemu-arm",desc:"크로스아키 사용자모드 에뮬레이션(ARM/MIPS 등).",cmd:"qemu-arm ./fw-binary",samd:"추출한 SiMD 펌웨어 바이너리를 격리 환경에서 안전하게 실행·분석.",tags:["usb","prop"]},
-  {id:"cutter",cat:"firmware",ph:["firmware","exploit"],inst:true,chk:"cutter",desc:"Rizin 기반 역공학 GUI(rz-ghidra 디컴파일러 포함).",cmd:"cutter firmware.elf",samd:"Ghidra 대안으로 펌웨어 디컴파일·그래프 분석.",tags:["usb","prop"]},
-  // ===== metapackage: bluetooth (BLE) =====
-  {id:"ubertooth",cat:"wireless",ph:["wireless","traffic"],inst:true,chk:"ubertooth-util",desc:"BLE 패킷 스니핑 하드웨어 도구모음.",cmd:"ubertooth-util -v",samd:"앱-기기 간 BLE 트래픽 캡처로 평문·약한 페어링 식별.",tags:["ble"]},
-  {id:"crackle",cat:"wireless",ph:["wireless","cred"],inst:true,chk:"crackle",desc:"BLE 레거시 페어링(LE Legacy) 암호 크랙.",cmd:"crackle -i ble.pcap",samd:"BLE 웨어러블/이식형의 약한 페어링으로 인한 트래픽 복호화 입증.",tags:["ble"]},
-  {id:"btscanner",cat:"wireless",ph:["wireless","recon"],inst:true,chk:"btscanner",desc:"Bluetooth 장치 탐색·정보 수집.",cmd:"btscanner",samd:"테스트 공간의 BLE 의료기기 식별·정보 노출 점검.",tags:["ble"]},
-  // ===== metapackage: reverse-engineering (mobile) =====
-  {id:"dex2jar",cat:"firmware",ph:["firmware"],inst:true,chk:"d2j-dex2jar",desc:"Android dex를 jar로 변환(정적 분석용).",cmd:"d2j-dex2jar app.apk",samd:"모바일 SaMD를 jd-gui 등으로 Java 수준 검토하기 위한 전처리.",tags:["mobile"]},
-  {id:"jd-gui",cat:"firmware",ph:["firmware"],inst:true,chk:"jd-gui",desc:"Java 바이트코드 디컴파일 GUI.",cmd:"jd-gui app-dex2jar.jar",samd:"모바일 SaMD 로직·하드코딩 비밀의 가독성 높은 검토.",tags:["mobile"]}
-];
+const TOOLS = window.MEDPEN_TOOLS;
 
 /* ---------------- CATALOG RENDER ---------------- */
 const CAT_LABELS = {recon:"정찰",scan:"스캐닝",traffic:"프로토콜",web:"웹·API",wireless:"무선·BLE",hardware:"하드웨어·RF",firmware:"펌웨어",exploit:"익스플로잇",cred:"인증·암호"};
@@ -470,13 +387,14 @@ function renderCatalog(){
   catGrid.innerHTML=items.map(t=>`
     <div class="card" id="tool-${t.id}">
       <div class="card-h">
-        <h4>${esc(t.id)}</h4>
+        <h4><a href="tool.html#${t.id}">${esc(t.id)}</a></h4>
         <span class="cat-pill">${CAT_LABELS[t.cat]||t.cat}</span>
         <span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'INSTALLED':'apt install'}</span>
       </div>
       <p class="desc">${esc(t.desc)}</p>
       <pre class="cmd">${esc(t.cmd)}</pre>
       <div class="samd"><b>SaMD/SiMD 적용</b>${esc(t.samd)}</div>
+      <a class="detail-link" href="tool.html#${t.id}">자세히 보기 — 테스트 케이스·사례 →</a>
     </div>`).join("");
 }
 function buildFilters(){
@@ -699,7 +617,7 @@ function renderPlan(){
     }
     tools.forEach(t=>{
       html+=`<div class="toolline">
-        <span class="tn"><a href="#tool-${t.id}">${esc(t.id)}</a> <span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'✓':'+'}</span></span>
+        <span class="tn"><a href="tool.html#${t.id}">${esc(t.id)}</a> <span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'✓':'+'}</span></span>
         <span class="td">${esc(t.samd)}<code class="cmd mono">${esc(t.cmd.split("\n")[0])}</code></span>
       </div>`;
     });

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>툴 상세 — MedPen</title>
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --surface-2:#eef1f4; --line:#d8dde3;
+  --fg:#17202a; --muted:#5a6775; --faint:#8793a0;
+  --accent:#0c7d8c; --accent-weak:#d4ebee; --accent-ink:#065059;
+  --ok:#2f8f4e; --warn:#b5730b; --info:#2d6fb3;
+  --code-bg:#0f1b22; --code-fg:#cfe6ea; --r:10px; --r-sm:6px;
+  --f-head:"Archivo","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
+  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
+  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --ok:#4bbf6e; --warn:#e0a030; --info:#5a9fe0;
+  --code-bg:#0a1217; --code-fg:#cfe6ea; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d141a; --surface:#131d25; --surface-2:#182530; --line:#283743;
+  --fg:#e7edf2; --muted:#9aa8b4; --faint:#6b7a87;
+  --accent:#2bb6c6; --accent-weak:#123840; --accent-ink:#8fe0ea;
+  --ok:#4bbf6e; --warn:#e0a030; --info:#5a9fe0;
+  --code-bg:#0a1217; --code-fg:#cfe6ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-head);line-height:1.2;margin:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,.mono{font-family:var(--f-mono)}
+
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-head);font-weight:700;font-size:1rem}
+.brand .mk{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--accent);color:#fff}
+.sp{margin-left:auto}
+.lnk{color:var(--muted);font-size:.84rem;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:7px 11px;background:var(--surface);cursor:pointer;font-family:var(--f-body)}
+.lnk:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.crumb{font-size:.8rem;color:var(--faint);margin-bottom:12px}
+.crumb a{color:var(--muted)}
+
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.head h1{font-family:var(--f-mono);font-size:1.7rem;font-weight:700;letter-spacing:-.01em}
+.pill{font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-weak);padding:3px 9px;border-radius:999px;font-weight:700}
+.badge{font-family:var(--f-mono);font-size:.66rem;padding:2px 7px;border-radius:4px;font-weight:600}
+.b-inst{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.b-miss{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+.lead{color:var(--muted);font-size:1rem;margin:4px 0 22px;max-width:70ch}
+
+section.block{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+section.block h2{font-size:1rem;color:var(--accent-ink);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+section.block h2 .i{width:22px;height:22px;border-radius:6px;background:var(--accent-weak);display:grid;place-items:center;color:var(--accent-ink);font-size:.8rem}
+pre.cmd,code.cmd{background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:.82rem;border-radius:var(--r-sm);padding:11px 13px;overflow-x:auto;margin:0;white-space:pre-wrap;display:block}
+.samdbox{font-size:.9rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:var(--r-sm);padding:11px 13px}
+
+.tc{list-style:none;margin:0;padding:0;counter-reset:tc}
+.tc li{position:relative;padding:10px 0 10px 40px;border-bottom:1px dashed var(--line)}
+.tc li:last-child{border-bottom:0}
+.tc li::before{counter-increment:tc;content:counter(tc);position:absolute;left:0;top:10px;width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:.82rem}
+.tc .t{font-weight:600;font-size:.92rem;margin-bottom:2px}
+.tc .s{font-size:.86rem;color:var(--muted)}
+.tc .s code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92em}
+
+.cases{margin:0;padding-left:18px}
+.cases li{font-size:.9rem;margin-bottom:7px}
+.refs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.refs a{font-size:.9rem}
+.refs a::before{content:"↗ ";color:var(--faint)}
+
+.related{display:flex;flex-wrap:wrap;gap:8px}
+.related a{font-family:var(--f-mono);font-size:.82rem;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--fg)}
+.related a:hover{border-color:var(--accent);text-decoration:none;color:var(--accent)}
+
+/* index (no tool selected) */
+.idxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.idxcat h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin-bottom:8px;font-family:var(--f-head)}
+.idxcat ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.idxcat a{font-family:var(--f-mono);font-size:.86rem;color:var(--fg)}
+.notice{background:var(--accent-weak);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:var(--r);padding:12px 15px;margin-bottom:20px;font-size:.88rem;color:var(--accent-ink)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="in">
+    <div class="brand"><span class="mk">⊕</span> 툴 상세</div>
+    <div class="sp"></div>
+    <a class="lnk" href="index.html#catalog">← 카탈로그</a>
+    <a class="lnk" href="index.html">빌더</a>
+    <button class="lnk" id="themeBtn" type="button">◐ 테마</button>
+  </div>
+</div>
+<div class="wrap" id="wrap"><p style="color:var(--muted)">불러오는 중…</p></div>
+
+<script src="tools-data.js"></script>
+<script>
+const TOOLS=window.MEDPEN_TOOLS||[];
+const DETAIL=window.MEDPEN_DETAIL||{};
+const CAT={recon:"정찰",scan:"스캐닝",traffic:"프로토콜",web:"웹·API",wireless:"무선·BLE",hardware:"하드웨어·RF",firmware:"펌웨어",exploit:"익스플로잇",cred:"인증·암호"};
+const PH={recon:"정찰·OSINT",scan:"탐지·스캐닝",traffic:"프로토콜·트래픽 분석",web:"웹·API 테스트",wireless:"무선·BLE",firmware:"펌웨어·임베디드",exploit:"취약점 검증·익스플로잇",cred:"인증·암호",report:"리포팅"};
+const wrap=document.getElementById('wrap');
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function renderTool(t){
+  const d=DETAIL[t.id]||{};
+  const ov=d.ov||t.desc;
+  const tc=(d.tc&&d.tc.length)?d.tc:[{t:"기본 사용",s:t.cmd}];
+  const cs=(d.cs&&d.cs.length)?d.cs:[t.samd];
+  const rf=d.rf||[];
+  const related=TOOLS.filter(x=>x.cat===t.cat&&x.id!==t.id).slice(0,8);
+  const phases=(t.ph||[]).map(p=>PH[p]).filter(Boolean);
+  let h='';
+  h+=`<p class="crumb"><a href="index.html#catalog">카탈로그</a> / <a href="tool.html">${esc(CAT[t.cat]||t.cat)}</a> / ${esc(t.id)}</p>`;
+  h+=`<div class="head"><h1>${esc(t.id)}</h1><span class="pill">${esc(CAT[t.cat]||t.cat)}</span>`+
+     `<span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'INSTALLED':'apt install 필요'}</span></div>`;
+  h+=`<p class="lead">${esc(ov)}</p>`;
+
+  h+=`<section class="block"><h2><span class="i">⌘</span>사용 명령</h2><pre class="cmd">${esc(t.cmd)}</pre></section>`;
+
+  h+=`<section class="block"><h2><span class="i">✚</span>SaMD / SiMD 적용</h2><div class="samdbox">${esc(t.samd)}</div></section>`;
+
+  h+=`<section class="block"><h2><span class="i">✓</span>테스트 케이스</h2><ul class="tc">`;
+  tc.forEach(c=>{ h+=`<li><div class="t">${esc(c.t)}</div><div class="s">${renderStep(c.s)}</div></li>`; });
+  h+=`</ul></section>`;
+
+  h+=`<section class="block"><h2><span class="i">◆</span>적용 사례</h2><ul class="cases">`;
+  cs.forEach(c=>{ h+=`<li>${esc(c)}</li>`; });
+  h+=`</ul></section>`;
+
+  if(phases.length){
+    h+=`<section class="block"><h2><span class="i">⟶</span>관련 테스트 단계</h2><p style="margin:0;color:var(--muted);font-size:.9rem">${phases.map(esc).join(' · ')}</p></section>`;
+  }
+  if(rf.length){
+    h+=`<section class="block"><h2><span class="i">↗</span>참고자료</h2><ul class="refs">`;
+    rf.forEach(r=>{ h+=`<li><a href="${esc(r[1])}" target="_blank" rel="noopener">${esc(r[0])}</a></li>`; });
+    h+=`</ul></section>`;
+  }
+  if(related.length){
+    h+=`<section class="block"><h2><span class="i">≡</span>같은 범주의 다른 툴</h2><div class="related">`;
+    related.forEach(x=>{ h+=`<a href="tool.html#${encodeURIComponent(x.id)}">${esc(x.id)}</a>`; });
+    h+=`</div></section>`;
+  }
+  wrap.innerHTML=h;
+  document.title=`${t.id} — 툴 상세 · MedPen`;
+  window.scrollTo(0,0);
+}
+function renderStep(s){
+  // highlight inline command-ish spans: wrap backtick `...` as code, else escape
+  const e=esc(s);
+  return e.replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+function renderIndex(msg){
+  let h='';
+  if(msg) h+=`<div class="notice">${esc(msg)}</div>`;
+  h+=`<div class="head"><h1 style="font-family:var(--f-head)">툴 카탈로그</h1></div>`;
+  h+=`<p class="lead">툴을 선택하면 설명·테스트 케이스·적용 사례·참고자료를 볼 수 있습니다. (총 ${TOOLS.length}개)</p>`;
+  h+=`<div class="idxgrid">`;
+  Object.keys(CAT).forEach(cat=>{
+    const items=TOOLS.filter(t=>t.cat===cat);
+    if(!items.length)return;
+    h+=`<div class="idxcat"><h3>${esc(CAT[cat])}</h3><ul>`;
+    items.forEach(t=>{ h+=`<li><a href="tool.html#${encodeURIComponent(t.id)}">${esc(t.id)}</a> `+
+      `<span class="badge ${t.inst?'b-inst':'b-miss'}">${t.inst?'✓':'+'}</span></li>`; });
+    h+=`</ul></div>`;
+  });
+  h+=`</div>`;
+  wrap.innerHTML=h;
+  document.title='툴 상세 — MedPen';
+}
+function route(){
+  if(!TOOLS.length){ wrap.innerHTML='<div class="notice">툴 데이터를 불러오지 못했습니다. tools-data.js가 같은 폴더에 있어야 합니다.</div>'; return; }
+  const id=decodeURIComponent((location.hash||'').replace(/^#/,'').trim());
+  if(!id){ renderIndex(); return; }
+  const t=TOOLS.find(x=>x.id===id);
+  if(!t){ renderIndex(`“${id}” 툴을 찾을 수 없습니다. 아래에서 선택하세요.`); return; }
+  renderTool(t);
+}
+window.addEventListener('hashchange',route);
+
+/* theme */
+const tb=document.getElementById('themeBtn');
+let theme=null; try{theme=localStorage.getItem('mp-theme');}catch(e){}
+if(theme)document.documentElement.setAttribute('data-theme',theme);
+tb.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const sysDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const next=(cur==='dark'||(!cur&&sysDark))?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('mp-theme',next);}catch(e){}
+});
+
+route();
+</script>
+</body>
+</html>
