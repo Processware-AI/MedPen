@@ -173,6 +173,13 @@ section.band{padding-block:38px;scroll-margin-top:72px}
 .tb-svg .mono{font-family:var(--f-mono)}
 .tb-svg line{stroke-width:1.5}
 .tb-cap{font-size:.78rem;color:var(--faint);text-align:center;margin:10px 0 0}
+.tb-legend{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.tb-legend span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}
+.tb-legend .sw{flex:none}
+.lg-grad{width:22px;height:12px;border-radius:3px;background:var(--grad)}
+.lg-solid{width:24px;height:2px;background:var(--accent)}
+.lg-dash{width:24px;height:0;border-top:2px dashed var(--faint)}
+.lg-tap{font-family:var(--f-mono);font-size:.62rem;font-style:normal;border:1px solid var(--accent);color:var(--accent);border-radius:3px;padding:1px 5px;line-height:1}
 .tb-fw{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:.86rem;border-radius:var(--r-sm);padding:10px 12px;text-align:center}
 .tb-conn{display:block;width:2px;height:16px;background:var(--line);margin:0 auto}
 .tb-segs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -434,6 +441,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
         <text class="mut" x="680" y="320" font-size="12">pcap · SIEM</text>
         <text class="mut" x="680" y="338" font-size="12">점프호스트 전용</text>
       </svg>
+      <div class="tb-legend">
+        <span><i class="sw lg-grad"></i>방화벽 / 라우터</span>
+        <span><i class="sw lg-solid"></i>LAB 내부 라우팅 (VLAN 버스)</span>
+        <span><i class="sw lg-dash"></i>격리 경계 · 통제 게이트웨이(선택)</span>
+        <span><i class="sw lg-tap">TAP</i>트래픽 캡처 지점 (TAP/SPAN)</span>
+      </div>
       <p class="tb-cap">임상·운영망과 완전 분리 · 외부는 통제 게이트웨이로만 · 전 구간 TAP/SPAN 캡처 (좁은 화면에서는 가로 스크롤)</p>
     </div>
 
