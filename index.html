@@ -165,7 +165,14 @@ section.band{padding-block:38px;scroll-margin-top:72px}
 .lab-list .k{flex:none;min-width:84px;font-family:var(--f-mono);font-size:.74rem;color:var(--accent-ink);font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding-top:1px}
 .lab-list .v{color:var(--fg)}
 /* ---- testbed section ---- */
-.tb-topo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.tb-topo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:16px;overflow-x:auto}
+.tb-svg{width:100%;min-width:720px;height:auto;display:block}
+.tb-svg text{font-family:var(--f-body);fill:var(--fg)}
+.tb-svg .mut{fill:var(--muted)}
+.tb-svg .acc{fill:var(--accent)}
+.tb-svg .mono{font-family:var(--f-mono)}
+.tb-svg line{stroke-width:1.5}
+.tb-cap{font-size:.78rem;color:var(--faint);text-align:center;margin:10px 0 0}
 .tb-fw{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:.86rem;border-radius:var(--r-sm);padding:10px 12px;text-align:center}
 .tb-conn{display:block;width:2px;height:16px;background:var(--line);margin:0 auto}
 .tb-segs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -375,15 +382,59 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
     <p class="sec-sub">SaMD/SiMD 테스트 환경은 <b>격리(isolation)</b>와 <b>현실 재현(fidelity)</b>의 균형이 핵심입니다. 임상·운영망과 완전히 분리하되, 실제 배포 환경을 충분히 재현해야 유효한 결과가 나옵니다. (IEC 80001-1 · IEC 62443 참조)</p>
 
     <div class="tb-topo">
-      <div class="tb-fw">🛡 LAB 방화벽 / 라우터 — VLAN 간 통제·전수 로깅</div>
-      <span class="tb-conn"></span>
-      <div class="tb-segs">
-        <div class="tb-seg"><span class="vlan">VLAN 10</span><h4>공격자</h4><ul><li>Kali + MedPen 툴셋</li><li>타깃·시뮬레이터로만 라우팅</li></ul></div>
-        <div class="tb-seg"><span class="vlan">VLAN 20</span><h4>타깃 (DUT)</h4><ul><li>테스트 대상 SaMD/SiMD</li><li>필요 포트만 개방·스냅샷</li></ul></div>
-        <div class="tb-seg"><span class="vlan">VLAN 30</span><h4>시뮬레이터</h4><ul><li>DICOM 노드·HL7/FHIR 엔진</li><li>MQTT 브로커·PACS/EHR 모사</li></ul></div>
-        <div class="tb-seg"><span class="vlan">VLAN 40</span><h4>관리 · 캡처</h4><ul><li>TAP/SPAN pcap·SIEM</li><li>점프호스트 전용 접근</li></ul></div>
-      </div>
-      <div class="tb-internet">🌐 인터넷·클라우드는 <b>통제된 아웃바운드 프록시/NAT</b>로만 — 기본은 차단(air-gap)</div>
+      <svg class="tb-svg" viewBox="0 0 900 420" role="img" aria-label="테스트베드 네트워크 토폴로지 다이어그램">
+        <defs>
+          <linearGradient id="fwg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/>
+          </linearGradient>
+        </defs>
+        <!-- internet cloud -->
+        <ellipse cx="450" cy="38" rx="122" ry="27" fill="var(--surface-2)" stroke="var(--faint)" stroke-dasharray="4 4"/>
+        <text class="mut" x="450" y="43" text-anchor="middle" font-size="14">🌐 인터넷 / 클라우드</text>
+        <line x1="450" y1="65" x2="450" y2="90" stroke="var(--faint)" stroke-dasharray="4 4"/>
+        <!-- controlled gateway -->
+        <rect x="352" y="90" width="196" height="34" rx="7" fill="var(--surface-2)" stroke="var(--accent)" stroke-dasharray="5 4"/>
+        <text class="mut" x="450" y="112" text-anchor="middle" font-size="13">통제 프록시 / NAT · 기본 차단</text>
+        <line x1="450" y1="124" x2="450" y2="148" stroke="var(--accent)"/>
+        <!-- firewall -->
+        <rect x="30" y="148" width="840" height="46" rx="9" fill="url(#fwg)"/>
+        <text x="450" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">🛡 LAB 방화벽 / 라우터 · VLAN 간 통제 · 전수 로깅</text>
+        <!-- bus -->
+        <line x1="450" y1="194" x2="450" y2="222" stroke="var(--accent)"/>
+        <line x1="127" y1="222" x2="763" y2="222" stroke="var(--accent)"/>
+        <line x1="127" y1="222" x2="127" y2="248" stroke="var(--accent)"/>
+        <line x1="339" y1="222" x2="339" y2="248" stroke="var(--accent)"/>
+        <line x1="551" y1="222" x2="551" y2="248" stroke="var(--accent)"/>
+        <line x1="763" y1="222" x2="763" y2="248" stroke="var(--accent)"/>
+        <!-- TAP marker on capture link -->
+        <rect x="769" y="228" width="36" height="16" rx="3" fill="var(--surface)" stroke="var(--accent)"/>
+        <text class="mono acc" x="787" y="240" text-anchor="middle" font-size="10">TAP</text>
+        <!-- VLAN 10 -->
+        <rect x="30" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="44" y="274" font-size="11">VLAN 10</text>
+        <text x="44" y="296" font-size="15" font-weight="700">공격자</text>
+        <text class="mut" x="44" y="320" font-size="12">Kali + MedPen 툴셋</text>
+        <text class="mut" x="44" y="338" font-size="12">타깃·시뮬레이터로만</text>
+        <!-- VLAN 20 -->
+        <rect x="242" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="256" y="274" font-size="11">VLAN 20</text>
+        <text x="256" y="296" font-size="15" font-weight="700">타깃 (DUT)</text>
+        <text class="mut" x="256" y="320" font-size="12">대상 SaMD / SiMD</text>
+        <text class="mut" x="256" y="338" font-size="12">필요 포트·스냅샷</text>
+        <!-- VLAN 30 -->
+        <rect x="454" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="468" y="274" font-size="11">VLAN 30</text>
+        <text x="468" y="296" font-size="15" font-weight="700">시뮬레이터</text>
+        <text class="mut" x="468" y="320" font-size="12">DICOM·HL7·MQTT</text>
+        <text class="mut" x="468" y="338" font-size="12">PACS / EHR 모사</text>
+        <!-- VLAN 40 -->
+        <rect x="666" y="248" width="194" height="150" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text class="mono acc" x="680" y="274" font-size="11">VLAN 40</text>
+        <text x="680" y="296" font-size="15" font-weight="700">관리 · 캡처</text>
+        <text class="mut" x="680" y="320" font-size="12">pcap · SIEM</text>
+        <text class="mut" x="680" y="338" font-size="12">점프호스트 전용</text>
+      </svg>
+      <p class="tb-cap">임상·운영망과 완전 분리 · 외부는 통제 게이트웨이로만 · 전 구간 TAP/SPAN 캡처 (좁은 화면에서는 가로 스크롤)</p>
     </div>
 
     <div class="tb-cols">
